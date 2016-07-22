@@ -244,32 +244,50 @@ function create_config( )
     "lock_username",
     "lock_tag",
     "lock_reply",
-    "rmsg",
+    "dlpm",
     "send",
     "set_type",
     "welcome",
     "sh",
-    "serverinfo"
+    "serverinfo",
+	"writer2",
+    "txtvoice",
+    "time",
+    "webshot",
+    "stickers",
+    "stick",
+    "shortlink",
+    "redisoner",
+    "music",
+    "info",
+    "imagepro",
+    "help2",
+    "getcaption",
+    "begu",
+    "fal",
+    "weather",
+    "id",
+    "me2"
     },
     sudo_users = {237948368},--Sudo users
     moderation = {data = 'data/moderation.json'},
-    about_text = [[MeGa shield v2.9
+    about_text = [[G U A R D V1.0
 An advanced administration bot based on TG-CLI written in Lua
 
 Github:
-https://github.com/hafez16/mega-shield
+https://github.com/******/guard
 
 Admins:
 @Mmdzri [Developer]
 @DavidZzz [Developer]
-@kl2202 [Manager]
+@sheypoorak_Suport [Manager]
 @SweetherTM [suport]
 
 Special thanks to
 SEEDTEAM
 graphic2014
-papion team
-Avira team
+sheypoorak
+..........
 
 Our channels
 @SweetherTM [persian]
@@ -487,161 +505,164 @@ will return group ban list
 
 ]],
 	help_text_super =[[
-SuperGroup Commands:
+«S.GP COMMANDS»
 
 »INFO
-«نمايش اطلاعاتي  از شما
+»نمايش اطلاعاتي  از شما
 
 »ADMINS
-«نمايش ليست ادمين سوپرگروه
+»نمايش ليست ادمين سوپرگروه
 
 »OWNER
-«نمايش نام و مشخصات صاحب گروه
+»نمايش نام و مشخصات صاحب گروه
 
 »MODLIST
-«نمايش ليست مديران سوپرگروه
+»نمايش ليست مديران سوپرگروه
 
 »BOTS
-Lists bots in SuperGroup
+»ليست ربات هاي سوپرگروه
 
 »WHO
-Lists all users in SuperGroup
+«ليست تمام کاربران سوپرگروه
 
 »BLOCK
-Kicks a user from SuperGroup
-*Adds user to blocked list*
+»اخراج کاربر از سوپر گروه
+*اضافه کردن کاربر به ليست کاربران مسدود*
 
 »KICK
-Kicks a user from SuperGroup
-*Adds user to blocked list*
+»اخراج کردن کاربر از سوپرگروه
+*بدون اضافه شدن به ليست کاربران مسدود*
 
 »BAN
-Bans user from the SuperGroup
+»اخراج کاربر از سوپرگروه
+*بدون قابليت بازگشت*
 
 »UNBAN
-Unbans user from the SuperGroup
+»آزاد کردن کاربر مسدود
 
 »ID
-Return SuperGroup ID or user id
+»نمايش آيدي شما
 *For userID's: !id @username or reply !id*
 
 »ID FROM
-Get ID of user message is forwarded from
+»مشاهده آيدي کاربري که پيام فرستاده
 
 »KICKME
-Kicks user from SuperGroup
-*Must be unblocked by owner or use join by pm to return*
+»خروج از گروه با ميل خود کاربر
+*با قابليت بازگشت*
 
 »SETOWNER
-Sets the SuperGroup owner
+»ثبت صاحب سوپرگروه
 
-!promote [username|id]
-Promote a SuperGroup moderator
+»PROMOTE [username|id]
+»ترفيع دادن مديران سوپرگروه
 
-!demote [username|id]
-Demote a SuperGroup moderator
+»DEMOTE[username|id]
+«عزل مقام مديريت
 
-!setname
-Sets the chat name
+»SETNAME
+»ثبت نام جديد براي سوپرگروه
 
-!setphoto
-Sets the chat photo
+»SETPHOTO
+»ثبت تصوير جديد براي سوپرگروه
 
-!setrules
-Sets the chat rules
+»SETRULES
+»ثبت قوانين براي سوپرگروه
 
-!setabout
-Sets the about section in chat info(members list)
+»SETABOUT
+»ثبت مشخصات گروه
 
-!save [value] <text>
-Sets extra info for chat
+»SAVE [value] <text>
+»ثبت مشخصات اضافي
 
-!get [value]
-Retrieves extra info for chat by value
+»GET [value]
+»بازيابي اطلاعات اضافي براي چت 
 
-!newlink
-Generates a new group link
+»NEWLINK
+»ساخت يک لينک جديد
 
-!link
-Retireives the group link
+»LINK
+»نمايش لينک سوپرگروه
 
-!rules
-Retrieves the chat rules
+»RULES
+»نمايش قوانين سوپرگروه
 
-!lock [links|flood|spam|Arabic|member|rtl|sticker|contacts|strict|tag|username|fwd|reply|fosh|tgservice|leave|join|emoji|english|media|operator]
-Lock group settings
-*rtl: Delete msg if Right To Left Char. is in name*
-*strict: enable strict settings enforcement (violating user will be kicked)*
-*fosh: Delete badword msg*
-*fwd: Delete forward msg*
+»LOCK [links|flood|spam|Arabic|member|rtl|sticker|contacts|strict|tag|username|fwd|reply|fosh|tgservice|leave|join|emoji|english|media|operator]
+»تنظيمات قفل هاي سوپرگروه
+*rtl: حذف پيام هايي که از راست به چپ نوشته ميشوند*
+*strict: فعال کردن تنظيمات سختگيرانه*
+*fosh: حذف فحاشي*
+*fwd: حذف پيامهاي فوروارد شده*
 
-!unlock [links|flood|spam|Arabic|member|rtl|sticker|contacts|strict|tag|username|fwd|reply|fosh|tgservice|leave|join|emoji|english|media|operator]
-Unlock group settings
-*rtl: Delete msg if Right To Left Char. is in name*
-*strict: disable strict settings enforcement (violating user will not be kicked)*
+»UNLOCK [links|flood|spam|Arabic|member|rtl|sticker|contacts|strict|tag|username|fwd|reply|fosh|tgservice|leave|join|emoji|english|media|operator]
+»تنظيمات غيرفعال کردن قفل هاي سوپرگروه
+*rtl: غير فعال کردن قفل پيام هايي که از راست به چپ نوشته ميشوند*
+*strict: غير فعال کردن تنظيمات سختگيرانه*
 
-!mute [all|audio|gifs|photo|video|service]
-mute group message types
-*A "muted" message type is auto-deleted if posted
+»MUTE [all|audio|gifs|photo|video|service]
+»فيلتر پيام هاي گروه با توجه به نوعشان
+*هر نوع پيامي که فيلتر باشد پس از ارسال پاک ميشود*
 
-!unmute [all|audio|gifs|photo|video|service]
-Unmute group message types
-*A "unmuted" message type is not auto-deleted if posted
+»UNMUTE [all|audio|gifs|photo|video|service]
+»غير فعال کردن فيلتر پيام ها
+*هر نوع پيامي که فيلتر باشد پس از ارسال پاک ميشود*
 
-!setflood [value]
-Set [value] as flood sensitivity
+»SETFLOOD [value]
+»ثبت تعداد پيام هاي پشت هم
 
-!type [name]
-set type for supergroup
+»TYPE [name]
+»ثبت نوع گروه /خصوصي|عمومي
 
-!settings
-Returns chat settings
+»SETTINGS
+»نمايش تنظيمات سوپرگروه
 
-!mutelist
-Returns mutes for chat
+»MUTELIST
+»نمايش ليست بي صدا
 
-!silent [username]
-Mute a user in chat
-*If a muted user posts a message, the message is deleted automaically
-*only owners can mute | mods and owners can unmute
+»SILENT [username]
+»فيلتر کردن يک کاربر در گفتگو
+*پيام هاي کاربران فيلتر شده خودکار پاک ميشوند*
+*فقط صاحب گروه ميتواند کاربر را فيلتر کند*
 
-!silentlist
-Returns list of muted users in chat
+»SILENTLIST
+»نمايش ليست کاربران فيلتر شده
 
-!banlist
-Returns SuperGroup ban list
+»BANLIST
+»نمايش ليست کاربران مسدود
 
-!clean [rules|about|modlist|silentlist|filterlist]
+»CLEAN [rules|about|modlist|silentlist|filterlist]
+»پاکسازي قوانين|درباره|مدبران|ليست بيصدا|ليست فيلتر*
 
-!del
-Deletes a message by reply
+»DEL
+»حذف پيام توسظ ريپلي
 
-!filter [word]
-bot Delete word if member send
+»FILTER [word]
+»ربات پيامهاي حاوي کلمات فيلتر را پاک ميکند
 
-!unfilter [word]
-Delete word in filter list
+»UNFILTER [word]
+»حذف کلمه از ليست فيلتر
 
-!filterlist
-get filter list
+»FILTERLIST
+»نمايش ليست فيلتر
 
-!clean msg [value]
+»CLEAN MSG [value]
+»حذف آخرين پيام هاي سوپر گروه به تعداد دلخواه تا 
 
-!public [yes|no]
-Set chat visibility in pm !chats or !chatlist commands
+»PUBLIC [yes|no]
+»سوپر گروه عمومي
 
-!res [username]
-Returns users name and id by username
+»RES [username]
+»مشاهده نام و آي دي کاربران توسط نام کاربري
 
-!log
-Returns group logs
-*Search for kick reasons using [#RTL|#spam|#lockmember]
+»LOG
+»مشاهده الگريتم گروه
+*جستجو براي دلايل اخراج [#RTL|#spam|#lockmember]
 
-**You can use "#", "!", or "/" to begin all commands
-*Only owner can add members to SuperGroup
-(use invite link to invite)
-*Only moderators and owner can use block, ban, unban, newlink, link, setphoto, setname, lock, unlock, setrules, setabout and settings commands
-*Only owner can use res, setowner, promote, demote, and log commands
+**شما ميتوانيد از "#" و "!" يا "/"براي اجراي دستور استفاده کنيد
+*بعضي از دستورات مختص صاحب گروه ميباشد
+
+*فقط مديران و صاحب گروه ميتوانند از دستورات block, ban, unban, newlink, link, setphoto, setname, lock, unlock, setrules, setabout, settings استفاده کنند
+*فقط صاحب گروه ميتواند از دستورات res, setowner, promote, demote, log استفاده کند
 ]],
   }
   serialize_to_file(config, './data/config.lua')
