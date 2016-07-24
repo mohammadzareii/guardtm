@@ -271,6 +271,6 @@ Create a realm using the `!createrealm` command.
 Check out this [tutorial by Telegram Geeks](http://telegramgeeks.com/2016/01/teleseed-tutorial/) for further assistance with setup and installation.
 
 [mohammad (developer)](https://telegram.me/Mmdzri)
-[david (developer)](https://telegram.me/GuardTMBot)
+[david] (developer)](https://telegram.me/GuardTMBot)
 [TeleSeed Team]
 [Guard bot] (@Guard_TM)](https://telegram.me/Guard_TM)
