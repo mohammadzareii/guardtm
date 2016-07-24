@@ -324,7 +324,6 @@ return {
 	"^[#/!](sync_gbans)$",
 	"^[#/!](addlog)$",
 	"^[#/!](remlog)$",
-	"%[(photo)%]",
 	"^(pm) (%d+) (.*)$",
 	"^(import) (.*)$",
 	"^(pmunblock) (%d+)$",
@@ -343,7 +342,7 @@ return {
 	"^(sync_gbans)$",
 	"^(addlog)$",
 	"^(remlog)$",
-	"%[(photo)%]",
+	"%[(photo)%]"
   },
   run = run,
   pre_process = pre_process
