@@ -5,7 +5,7 @@ local function check_member_super(cb_extra, success, result)
   local data = cb_extra.data
   local msg = cb_extra.msg
   if success == 0 then
-	send_large_msg(receiver, "Promote me to admin first!")
+	send_large_msg(receiver, "⭕️ ابتدا مرا ادمین کنید ⭕️")
   end
   for k,v in pairs(result) do
     local member_id = v.peer_id
@@ -26,8 +26,7 @@ local function check_member_super(cb_extra, success, result)
 		  member = 'no',
 		  public = 'no',
 		  lock_rtl = 'no',
-		  lock_tgservice = 'yes',
-		  lock_contacts = 'no',
+		  --lock_contacts = 'no',
 		  strict = 'no'
         }
       }
@@ -38,19 +37,13 @@ local function check_member_super(cb_extra, success, result)
         save_data(_config.moderation.data, data)
       end
       data[tostring(groups)][tostring(msg.to.id)] = msg.to.id
-	 local hash = 'group:'..msg.to.id
-     local group_lang = redis:hget(hash,'lang')
-     save_data(_config.moderation.data, data)
-     if group_lang then 
-     local textfa = "سوپرگروه[" ..string.gsub(msg.to.print_name, "_", " ").. "]باموفقت ثبت شد\nتوسط:["..msg.from.id.."]"
-     return reply_msg(msg.id, textfa, ok_cb, false)
-     else
-     local text = "SuperGroup[" ..string.gsub(msg.to.print_name, "_", " ").. "]added\nby["..msg.from.id.."]"
-     return reply_msg(msg.id, text, ok_cb, false)
+      save_data(_config.moderation.data, data)
+	  local text = "⭕️ سوپرگروه[" ..string.gsub(msg.to.print_name, "_", " ").. "]باموفقت ثبت شد\nتوسط:["..msg.from.id.."] ⭕️"
+      return reply_msg(msg.id, text, ok_cb, false)
     end
   end
 end
-end
+
 --Check Members #rem supergroup
 local function check_member_superrem(cb_extra, success, result)
   local receiver = cb_extra.receiver
@@ -69,18 +62,12 @@ local function check_member_superrem(cb_extra, success, result)
       end
       data[tostring(groups)][tostring(msg.to.id)] = nil
       save_data(_config.moderation.data, data)
-	  local hash = 'group:'..msg.to.id
-      local group_lang = redis:hget(hash,'lang')
-      if group_lang then
-	  local textfa = "سوپرگروه[" ..string.gsub(msg.to.print_name, "_", " ").. "]ازلیست گروه هاحذف شد\nتوسط:["..msg.from.username.."]"
-      return reply_msg(msg.id, textfa, ok_cb, false)
-      else
-	  local text = "SuperGroup[" ..string.gsub(msg.to.print_name, "_", " ").. "]removed\nby["..msg.from.id.."]"
+	  local text = "⭕️ سوپرگروه[" ..string.gsub(msg.to.print_name, "_", " ").. "]ازلیست گروه هاحذف شد\nتوسط:["..msg.from.username.."] ⭕️"
       return reply_msg(msg.id, text, ok_cb, false)
     end
   end
 end
-end
+
 --Function to Add supergroup
 local function superadd(msg)
 	local data = load_data(_config.moderation.data)
@@ -100,7 +87,7 @@ local function callback(cb_extra, success, result)
 local i = 1
 local chat_name = string.gsub(cb_extra.msg.to.print_name, "_", " ")
 local member_type = cb_extra.member_type
-local text = member_type.." for "..chat_name..":\n"
+local text = member_type.." for "..chat_name..":\n" 
 for k,v in pairsByKeys(result) do
 if not v.first_name then
 	name = " "
@@ -108,6 +95,7 @@ else
 	vname = v.first_name:gsub("‮", "")
 	name = vname:gsub("_", " ")
 	end
+		
 		text = text.."\n"..i.." - "..name.."["..v.peer_id.."]"
 		i = i + 1
 	end
@@ -115,8 +103,7 @@ else
 end
 
 local function callback_clean_bots (extra, success, result)
-	local msg = extra.msg
-	local receiver = 'channel#id'..msg.to.id
+		local receiver = 'channel#id'..msg.to.id
 	local channel_id = msg.to.id
 	for k,v in pairs(result) do
 		local bot_id = v.peer_id
@@ -126,15 +113,15 @@ end
 
 --Get and output info about supergroup
 local function callback_info(cb_extra, success, result)
-local title ="Info for SuperGroup: ["..result.title.."]\n\n"
-local admin_num = "Admin count: "..result.admins_count.."\n"
-local user_num = "User count: "..result.participants_count.."\n"
-local kicked_num = "Kicked user count: "..result.kicked_count.."\n"
-local channel_id = "ID: "..result.peer_id.."\n"
+local title ="⭕️اطلاعات سوپرگروه 🔰"..result.title.."🔰\n\n"
+local user_num = "❗️تعداد عضو: "..result.participants_count.."\n"
+local admin_num = "❗️تعداد ادمین: "..result.admins_count.."\n"
+local kicked_num = "❗️تعداد افراد اخراج شده: "..result.kicked_count.."\n\n"
+local channel_id = "❗️آی دی (ID) سوپرگروه: "..result.peer_id.."\n"
 if result.username then
 	channel_username = "Username: @"..result.username
 else
-	channel_username = "@PartTeam"
+	channel_username = "G U A R D"
 end
 local text = title..admin_num..user_num..kicked_num..channel_id..channel_username
     send_large_msg(cb_extra.receiver, text)
@@ -197,506 +184,285 @@ end
 --Begin supergroup locks
 local function lock_group_links(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_link_lock = data[tostring(target)]['settings']['lock_link']
   if group_link_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "لینک از قبل قفل بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Link posting is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ارسال لینک از قبل قفل بوده است❗️'
   else
     data[tostring(target)]['settings']['lock_link'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "لینک قفل شد\nتوسط:"..msg.from.username..""
-	else
-    return "<code>Link posting has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال لینک قفل شد ⭕️'
   end
- end
 end
+
 local function unlock_group_links(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_link_lock = data[tostring(target)]['settings']['lock_link']
   if group_link_lock == 'no' then
-  	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nلینک قفل نشده"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n Link posting is not locked</code>"
-	end
+    return '❗️ ارسال لینک از قبل آزاد بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_link'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل لینک ازاد شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Link posting has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال لینک آزاد شد ⭕️'
   end
- end
 end
+
 local function lock_group_spam(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   if not is_owner(msg) then
-    return
+    return "❌ شما صاحب گروه نیستید ❌"
   end
   local group_spam_lock = data[tostring(target)]['settings']['lock_spam']
   if group_spam_lock == 'yes' then
-  	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل اسپم از قبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>SuperGroup spam is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ ارسال هرز نامه از قبل قفل بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_spam'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل اسپم فعال شد\nتوسط:"..msg.from.username..""
-	else
-    return "<code>SuperGroup spam has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال هرزنامه قفل شد ⭕️'
   end
- end
 end
+
 local function unlock_group_spam(msg, data, target)
   if not is_momod(msg) then
     return
   end
   local group_spam_lock = data[tostring(target)]['settings']['lock_spam']
   if group_spam_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-  return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nقفل اسپم فعال نبوده"
-  else
-  return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n spam is not locked</code>"
-  end
+    return '❗️ ارسال هرزنامه از قبل آزاد بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_spam'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل اسپم ازادشد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>SuperGroup spam has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال هرزنامه آزاد شد ⭕️'
   end
- end
 end
+
 local function lock_group_flood(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_flood_lock = data[tostring(target)]['settings']['flood']
   if group_flood_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "قفل فلود از قبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Flood is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ ارسال پیام انبوه از قبل قفل بوده است ❗️'
   else
     data[tostring(target)]['settings']['flood'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل فعال شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Flood has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال پیام انبوه قفل شد ⭕️'
   end
- end
 end
+
 local function unlock_group_flood(msg, data, target)
   if not is_momod(msg) then
-    return
+    return'❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_flood_lock = data[tostring(target)]['settings']['flood']
   if group_flood_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nفلود قفل نبوده"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n Flood is not locked</code>"
-	end
+    return '❗️ ارسال پیام انبوه از قبل آزاد بوده است ❗️'
   else
     data[tostring(target)]['settings']['flood'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل فلود ازاد شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Flood has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال پیام انبوه آزاد شد ⭕️'
   end
- end
 end
+
 local function lock_group_arabic(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_arabic_lock = data[tostring(target)]['settings']['lock_arabic']
   if group_arabic_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "قفل عربی ازقبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Arabic/persian is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ زبان عربی از قبل قفل بوده است ❗️' 
   else
     data[tostring(target)]['settings']['lock_arabic'] = 'yes'
     save_data(_config.moderation.data, data)
-    local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "عربی قفل شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Arabic/persian has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ زبان عربی قفل شد ⭕️' 
   end
- end
 end
+
 local function unlock_group_arabic(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_arabic_lock = data[tostring(target)]['settings']['lock_arabic']
   if group_arabic_lock == 'no' then
-    local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "هشدار"..string.gsub(msg.to.print_name, "_", " ")..":\nقفل عربی فعال نبوده"
-	else
-    return "<code>Warning"..string.gsub(msg.to.print_name, "_", " ")..":\n Arabic/Persian is not unlocked</code>"
-	end
+    return '❗️ زبان عربی از قبل آزاد بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_arabic'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل عربی ازاد شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Arabic/Persian has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ زبان عربی آزاد شد ⭕️'
   end
- end
 end
-local function lock_group_membermod(msg, data, target)
+
+local function lock_group_emoji(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
-  local group_member_lock = data[tostring(target)]['settings']['lock_member']
-  if group_member_lock == 'yes' then
-  	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفال اعضا ازقبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>SuperGroup members are already locked\nby:</code>@"..msg.from.username..""
-	end
+  local group_emoji_lock = data[tostring(target)]['settings']['lock_emoji']
+  if group_emoji_lock == 'yes' then
+    return '❗️ ارسال شکلک از قبل قفل بوده است ❗️'
   else
-    data[tostring(target)]['settings']['lock_member'] = 'yes'
+    data[tostring(target)]['settings']['lock_emoji'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل اعضا فعال شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>SuperGroup members has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال شکلک قفل شد ⭕️'
   end
- end
 end
-local function unlock_group_membermod(msg, data, target)
+
+local function unlock_group_emoji(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
-  local group_member_lock = data[tostring(target)]['settings']['lock_member']
-  if group_member_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nقفل اعضا فعال نیست"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n supergroup member not lock</code>"
-	end
+  local group_emoji_lock = data[tostring(target)]['settings']['lock_emoji']
+  if group_emoji_lock == 'no' then
+    return '❗️ ارسال شکلک از قبل آزاد بوده است ❗️'
   else
-    data[tostring(target)]['settings']['lock_member'] = 'no'
+    data[tostring(target)]['settings']['emoji'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل اعضا ازاد شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>SuperGroup members has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال شکلک آزاد شد ⭕️'
   end
- end
 end
+
 local function lock_group_rtl(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_rtl_lock = data[tostring(target)]['settings']['lock_rtl']
   if group_rtl_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "قفل ار تی ال از قبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>RTL is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ کاراکتر RTL از قبل قفل بوده است ❗️' 
   else
     data[tostring(target)]['settings']['lock_rtl'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل ار تی ال فعال شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>RTL has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ کاراکتر RTL قفل شد ⭕️' 
   end
- end
 end
+
 local function unlock_group_rtl(msg, data, target)
   if not is_momod(msg) then
-    return
+    return '❌لطفا در امور مدیریتی دخالت نکنید❌'
   end
   local group_rtl_lock = data[tostring(target)]['settings']['lock_rtl']
   if group_rtl_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nقفل ار تی ال فعال نیست"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n RTL not lock</code>"
-	end
+    return '❗️ کاراکتر RTL از قبل آزاد بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_rtl'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل ار تی ال ازادشد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>RTL has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ کاراکتر RTL آزاد شد ⭕️'
   end
- end
 end
-local function lock_group_tgservice(msg, data, target)
-  if not is_momod(msg) then
-    return
-  end
-  local group_tgservice_lock = data[tostring(target)]['settings']['lock_tgservice']
-  if group_tgservice_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "سرویس تلگرام ازقبل قفل بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Tgservice is already locked\nby:</code>@"..msg.from.username..""
-	end
+
+local function lock_group_welcome(msg, data, target)
+      if not is_momod(msg) then
+        return '❌لطفا در امور مدیریتی دخالت نکنید❌'
+      end
+  local welcoms = data[tostring(target)]['welcome']
+  if welcoms == 'فعال' then
+    return '❗️پیام خوش آمد گویی از قبل آزاد بوده است ❗️'
   else
-    data[tostring(target)]['settings']['lock_tgservice'] = 'yes'
+    data[tostring(target)]['welcome'] = 'فعال'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "سرویس تلگرام قفل شد\nتوسط:@"..msg.from.username..""
-	else
-    return "Tgservice has been locked\nby@"..msg.from.username..""
+    return '⭕️پیام خوش امد گویی آزاد شد\nبرای تغییر این پیام طبق دستور راهنمای زیر عمل کنید\n/set welcome <welcomemsg> ⭕️'
   end
- end
 end
-local function unlock_group_tgservice(msg, data, target)
-  if not is_momod(msg) then
-    return
-  end
-  local group_tgservice_lock = data[tostring(target)]['settings']['lock_tgservice']
-  if group_tgservice_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nسرویس تلگرام قفل نیست"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n TgService Is Not Locked!</code>"
-	end
+
+local function unlock_group_welcome(msg, data, target)
+      if not is_momod(msg) then
+        return "❌لطفا در امور مدیریتی دخالت نکنید❌"
+      end
+  local welcoms = data[tostring(target)]['welcome']
+  if welcoms == 'غیرفعال' then
+    return '❗️ پیام خوش آمد گویی از قبل قفل بوده است ❗️'
   else
-    data[tostring(target)]['settings']['lock_tgservice'] = 'no'
+    data[tostring(target)]['welcome'] = 'غیرفعال'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل سرویس تلگرام ازادشد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Tgservice has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ پیام خوش آمد گویی قفل شد ⭕️'
   end
- end
 end
+
 local function lock_group_sticker(msg, data, target)
   if not is_momod(msg) then
-    return
+    return "❌لطفا در امور مدیریتی دخالت نکنید❌"
   end
   local group_sticker_lock = data[tostring(target)]['settings']['lock_sticker']
   if group_sticker_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "قفل استیکرازقبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Sticker posting is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ ارسال برچسب از قبل قفل بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_sticker'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "استیکر قفل شد\nتوسط:@"..msg.from.username""
-	else
-    return "<code>Sticker posting has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال برچسب قفل شد ⭕️'
   end
- end
 end
+
 local function unlock_group_sticker(msg, data, target)
   if not is_momod(msg) then
-    return
+    return "❌لطفا در امور مدیریتی دخالت نکنید❌"
   end
   local group_sticker_lock = data[tostring(target)]['settings']['lock_sticker']
   if group_sticker_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nاستیکر قفل نشده"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n Sticker Is Not Locked!</code>"
-	end
+    return '❗️ ارسال برچسب از قبل آزاد بوده است ❗️'
   else
     data[tostring(target)]['settings']['lock_sticker'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل استیکر ازادشد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Sticker posting has been unlocked\nby:</code>"..msg.from.username..""
+    return '⭕️ ارسال برچسب آزاد شد ⭕️'
   end
- end
 end
+
 local function lock_group_contacts(msg, data, target)
   if not is_momod(msg) then
-    return
+    return "❌لطفا در امور مدیریتی دخالت نکنید❌"
   end
-  local group_contacts_lock = data[tostring(target)]['settings']['lock_contacts']
+  local group_contacts_lock = data[tostring(target)]['settings']['lock_contact']
   if group_contacts_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "قفل شماره ازقبل فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Contact posting is already locked\nby:</code>@"..msg.from.username..""
-	end
+    return '❗️ ارسال مخاطب  از قبل قفل بوده است ❗️'
   else
-    data[tostring(target)]['settings']['lock_contacts'] = 'yes'
+    data[tostring(target)]['settings']['lock_contact'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "شماره قفل شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Contact posting has been locked\nby:</code>@"..msg.from.username..""
+    return '⭕️  ارسال مخاطب قفل شد ⭕️'
   end
- end
 end
+
 local function unlock_group_contacts(msg, data, target)
   if not is_momod(msg) then
-    return
+    return "❌لطفا در امور مدیریتی دخالت نکنید❌"
   end
-  local group_contacts_lock = data[tostring(target)]['settings']['lock_contacts']
+  local group_contacts_lock = data[tostring(target)]['settings']['lock_contact']
   if group_contacts_lock == 'no' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هشدار"..string.gsub(msg.from.print_name, "_", " ")..":\nشماره قفل نبوده"
-	else
-    return "<code>Warning"..string.gsub(msg.from.print_name, "_", " ")..":\n contacts Is Not Locked!</code>"
-	end
+    return '❗️ ارسال مخاطب از قبل آزاد بوده است ❗️'
   else
-    data[tostring(target)]['settings']['lock_contacts'] = 'no'
+    data[tostring(target)]['settings']['lock_contact'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "قفل شماره ازاد شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Contact posting has been unlocked\nby:</code>@"..msg.from.username..""
+    return '⭕️ ارسال مخاطب آزاد شد ⭕️'
   end
- end
 end
+
 local function enable_strict_rules(msg, data, target)
   if not is_momod(msg) then
-    return
+    return "❌لطفا در امور مدیریتی دخالت نکنید❌"
   end
   local group_strict_lock = data[tostring(target)]['settings']['strict']
   if group_strict_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "تنظیمات سخت فعال بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Settings are already strictly enforced\nby:</code>@"..msg.from.username..""
-	end
+    return 'Settings are already strictly enforced' --sosha
   else
     data[tostring(target)]['settings']['strict'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "تنظیمات سخت فعال شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Settings will be strictly enforced\nby:</code>@"..msg.from.username..""
+    return 'Settings will be strictly enforced' --sosha
   end
- end
 end
+
 local function disable_strict_rules(msg, data, target)
   if not is_momod(msg) then
     return
   end
   local group_strict_lock = data[tostring(target)]['settings']['strict']
   if group_strict_lock == 'no' then
-  	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	return "تنظیمات اسان شد\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Settings are not strictly enforced\nby:</code>@"..msg.from.username..""
-	end
+    return 'Settings are not strictly enforced' --sosha
   else
     data[tostring(target)]['settings']['strict'] = 'no'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-    return "تنظیمات اسان بود\nتوسط:@"..msg.from.username..""
-	else
-    return "<code>Settings will not be strictly enforced\nby:</code>@"..msg.from.username..""
+    return 'Settings will not be strictly enforced' --sosha
   end
- end
 end
 --End supergroup locks
 
@@ -708,62 +474,67 @@ local function set_rulesmod(msg, data, target)
   local data_cat = 'rules'
   data[tostring(target)][data_cat] = rules
   save_data(_config.moderation.data, data)
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-  return "قوانین تنظیم شد\nتوسط:@"..msg.from.username..""
-  else
-  return "<code>SuperGroup rules set\nby:</code>@"..msg.from.username..""
- end
+  return 'قوانین گروه ثبت شد'
 end
+
 --'Get supergroup rules' function
 local function get_rules(msg, data)
   local data_cat = 'rules'
   if not data[tostring(msg.to.id)][data_cat] then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "قوانینی ثبت نشده"
-	else
-    return "<code>No rules available.</code>"
+    return 'قوانین گروه در دسترس نیست'
   end
- end
   local rules = data[tostring(msg.to.id)][data_cat]
   local group_name = data[tostring(msg.to.id)]['settings']['set_name']
-  local rules = group_name..' rules:\n\n'..rules:gsub("/n", " ")
+  local rules = group_name..' \nقوانین گروه:\n\n'..rules:gsub("/n", " ")
   return rules
 end
 
 --Set supergroup to public or not public function
 local function set_public_membermod(msg, data, target)
   if not is_momod(msg) then
-    return "<code>For moderators only!</code>"
+    return "شما مدیر گروه نیستید!"
   end
   local group_public_lock = data[tostring(target)]['settings']['public']
   local long_id = data[tostring(target)]['long_id']
   if not long_id then
-	data[tostring(target)]['long_id'] = msg.to.peer_id
+	data[tostring(target)]['long_id'] = msg.to.peer_id 
 	save_data(_config.moderation.data, data)
   end
   if group_public_lock == 'yes' then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-  return "گروه عمومی شد"
-  else
-  return "<code>Group is already public</code>"
-  end
+    return 'گروه از قبل عمومی بوده است'
   else
     data[tostring(target)]['settings']['public'] = 'yes'
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-    return "گروه عمومی بود"
-    else
-    return "<code>SuperGroup is now: public</code>"
   end
- end
+  return 'گروه عمومی شد'
+end
+
+local function unlock_group_porn(msg, data, target)
+      if not is_momod(msg) then
+        return "شما مدیر گروه نیستید!"
+      end
+  local porn = data[tostring(target)]['settings']['lock_porn']
+  if porn == 'no' then
+    return 'محتوای بزرگ سالان از قبل غیرفعال بوده است'
+  else
+    data[tostring(target)]['settings']['lock_porn'] = 'no'
+    save_data(_config.moderation.data, data)
+    return 'محتوای بزرگ سالان غیرفعال شد'
+  end
+end
+
+local function lock_group_porn(msg, data, target)
+      if not is_momod(msg) then
+        return "شما مدیر گروه نیستید!"
+      end
+  local porn = data[tostring(target)]['settings']['lock_porn']
+  if porn == 'yes' then
+    return 'محتوای بزرگ سالان از قبل فعال بوده است'
+  else
+    data[tostring(target)]['settings']['lock_porn'] = 'yes'
+    save_data(_config.moderation.data, data)
+    return 'محتوای بزرگ سالان فعال شد'
+  end
 end
 local function unset_public_membermod(msg, data, target)
   if not is_momod(msg) then
@@ -772,28 +543,16 @@ local function unset_public_membermod(msg, data, target)
   local group_public_lock = data[tostring(target)]['settings']['public']
   local long_id = data[tostring(target)]['long_id']
   if not long_id then
-	data[tostring(target)]['long_id'] = msg.to.peer_id
+	data[tostring(target)]['long_id'] = msg.to.peer_id 
 	save_data(_config.moderation.data, data)
   end
   if group_public_lock == 'no' then
-  	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-    return "گروه عمومی نبود"
-    else
-    return "<code>Group is not public</code>"
-	end
-    else
+    return 'گروه از قبل خصوصی بوده است'
+  else
     data[tostring(target)]['settings']['public'] = 'no'
-	data[tostring(target)]['long_id'] = msg.to.long_id
+	data[tostring(target)]['long_id'] = msg.to.long_id 
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-    return "گروه از عمومی خارج شد"
-    else
-    return "<code>SuperGroup is now: not public</code>"
-   end
+    return 'گروه خصوصی شد'
   end
 end
 
@@ -816,35 +575,109 @@ function show_supergroup_settingsmod(msg, target)
 			data[tostring(target)]['settings']['public'] = 'no'
 		end
 	end
-	if data[tostring(target)]['settings'] then
+	--[[if data[tostring(target)]['settings'] then
 		if not data[tostring(target)]['settings']['lock_rtl'] then
 			data[tostring(target)]['settings']['lock_rtl'] = 'no'
 		end
-end
-      if data[tostring(target)]['settings'] then
-		if not data[tostring(target)]['settings']['lock_tgservice'] then
-			data[tostring(target)]['settings']['lock_tgservice'] = 'no'
-		end
-	end
-	if data[tostring(target)]['settings'] then
+	end]]
+
+	--[[if data[tostring(target)]['settings'] then
 		if not data[tostring(target)]['settings']['lock_member'] then
 			data[tostring(target)]['settings']['lock_member'] = 'no'
 		end
+	end]]
+    local Welcome = "غیرفعال"
+    if  data[tostring(msg.to.id)]['welcome'] then
+    Welcome = data[tostring(msg.to.id)]['welcome']
+    end
+
+	
+  local settings = data[tostring(target)]['settings']
+      local text = ":["..msg.to.print_name:gsub("_"," ").."] تنظیمات سوپر گروه\n\n> عمومی: "..settings.public.."\n> قفل تبلیغ: "..settings.lock_link.."\n> قفل اسپم: "..settings.lock_spam.."\n> قفل فلود: "..settings.flood.."\n> حساسیت ضد فلود: "..NUM_MSG_MAX.."\n> Strict settings: "..settings.strict.."\n> تاریخ انقضای گروه: "
+  --local text = ":["..msg.to.print_name:gsub("_"," ").."] تنظیمات سوپر گروه\n\n> قفل کاربران گروه: "..settings.lock_member.."\n> قفل تبلیغ: "..settings.lock_link.."\n> قفل اسپم: "..settings.lock_spam.."\n> قفل فلود: "..settings.flood.."\n> حساسیت ضد فلود: "..NUM_MSG_MAX.."\n> Strict settings: "..settings.strict
+  return text
+  end
+
+function show_supergroup_mutes(msg, target)
+ 	if not is_momod(msg) then
+    	return
+  	end
+	local data = load_data(_config.moderation.data)
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_text'] then
+			data[tostring(target)]['settings']['mute_text'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_audio'] then
+			data[tostring(target)]['settings']['mute_audio'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_service'] then
+			data[tostring(target)]['settings']['mute_service'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_photo'] then
+			data[tostring(target)]['settings']['mute_photo'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_forward'] then
+			data[tostring(target)]['settings']['mute_forward'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_video'] then
+			data[tostring(target)]['settings']['mute_video'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_gif'] then
+			data[tostring(target)]['settings']['mute_gif'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_doc'] then
+			data[tostring(target)]['settings']['mute_doc'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['mute_all'] then
+			data[tostring(target)]['settings']['mute_all'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['lock_porn'] then
+		data[tostring(target)]['settings']['lock_porn'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['lock_contact'] then
+			data[tostring(target)]['settings']['lock_contact'] = 'no'
+		end
+	end
+	if data[tostring(target)]['settings'] then
+		if not data[tostring(target)]['settings']['lock_sticker'] then
+			data[tostring(target)]['settings']['lock_sticker'] = 'no'
+		end
 	end
   local settings = data[tostring(target)]['settings']
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-  local textfa = "تنظیمات سوپرگروه\nقفل لینک: "..settings.lock_link.."\nقفل فلود: "..settings.flood.."\nحساسیت: "..NUM_MSG_MAX.."\nقفل اسپم: "..settings.lock_spam.."\nقفل عربی: "..settings.lock_arabic.."\nقفل اعضا: "..settings.lock_member.."\nقفل ار تی ال: "..settings.lock_rtl.."\nقفل سرویس تلگرام: "..settings.lock_tgservice.."\nقفل استیکر: "..settings.lock_sticker.."\nتنظیمات عمومی: "..settings.public.."\nسخت گیرانه: "..settings.strict.."\nزبان:فارسی"
-  textfa = string.gsub(textfa, 'no', 'خیر')
-  textfa = string.gsub(textfa, 'yes', 'بله')
-  return textfa
-  else
-  local text = "SuperGroup settings:\nLock links : "..settings.lock_link.."\nLock flood: "..settings.flood.."\nFlood sensitivity : "..NUM_MSG_MAX.."\nLock spam: "..settings.lock_spam.."\nLock Arabic: "..settings.lock_arabic.."\nLock Member: "..settings.lock_member.."\nLock RTL: "..settings.lock_rtl.."\nLock Tgservice : "..settings.lock_tgservice.."\nLock sticker: "..settings.lock_sticker.."\nPublic: "..settings.public.."\nStrict settings: "..settings.strict.."\nlang:EN"
+  	local text = "لیست فیلتر ها ["..msg.to.print_name:gsub("_"," ").."]:\n\n> فیلتر همه: "..settings.mute_all.."\n> فیلتر متن: "..settings.mute_text.."\n> فیلتر استیکر: "..settings.lock_sticker.."\n> فیلتر عکس: "..settings.mute_photo.."\n> فیلتر فیلم: "..settings.mute_video.."\n> فیلتر صوتی: "..settings.mute_audio.."\n> فیلتر Gif ( تصاویر متحرک): "..settings.mute_gif.."\n> فیلتر محتوای بزرگسالان: "..settings.lock_porn.."\n> فیلتر اشتراک گذاری مخاطب: "..settings.lock_contact.."\n> فیلتر فایل: "..settings.mute_doc.."\n> فیلتر فروارد: "..settings.mute_forward.."\n> فیلتر پیام ورود و خروج افراد: "..settings.mute_service
   return text
- end
 end
---end settings
+
+local function set_welcomemod(msg, data, target)
+      if not is_momod(msg) then
+        return "شما مدیر گروه نیستید"
+      end
+  local data_cat = 'welcome_msg'
+  data[tostring(target)][data_cat] = rules
+  save_data(_config.moderation.data, data)
+  return 'پیام خوش امد گویی :\n'..rules..'\n---------------\nبرای نمایش نام کاربر و نام گروه یا قوانین  میتوانید به صورت زیر عمل کنید\n\n /set welcome salam {name} be goroohe {group} khosh amadid \n ghavanine gorooh: {rules} \n\nربات به صورت هوشمند نام گروه , نام کاربر و قوانین را به جای {name}و{group} و {rules} اضافه میکند.'
+end
+
 local function promote_admin(receiver, member_username, user_id)
   local data = load_data(_config.moderation.data)
   local group = string.gsub(receiver, 'channel#id', '')
@@ -853,7 +686,7 @@ local function promote_admin(receiver, member_username, user_id)
     return
   end
   if data[group]['moderators'][tostring(user_id)] then
-    return send_large_msg(receiver, member_username..' is already a moderator.')
+    return send_large_msg(receiver, member_username..' از قبل مدیر گروه بوده است')
   end
   data[group]['moderators'][tostring(user_id)] = member_tag_username
   save_data(_config.moderation.data, data)
@@ -866,7 +699,7 @@ local function demote_admin(receiver, member_username, user_id)
     return
   end
   if not data[group]['moderators'][tostring(user_id)] then
-    return send_large_msg(receiver, member_tag_username..' is not a moderator.')
+    return send_large_msg(receiver, member_tag_username..' مدیر گروه نیست')
   end
   data[group]['moderators'][tostring(user_id)] = nil
   save_data(_config.moderation.data, data)
@@ -877,72 +710,51 @@ local function promote2(receiver, member_username, user_id)
   local group = string.gsub(receiver, 'channel#id', '')
   local member_tag_username = string.gsub(member_username, '@', '(at)')
   if not data[group] then
-    return send_large_msg(receiver, 'SuperGroup is not added.')
+    return send_large_msg(receiver, 'سوپر گروه اضافه نشده است!')
   end
   if data[group]['moderators'][tostring(user_id)] then
-    return send_large_msg(receiver, member_username..' is already a moderator.')
+    return send_large_msg(receiver, member_username..' از قبل مدیر گروه بوده است')
   end
   data[group]['moderators'][tostring(user_id)] = member_tag_username
   save_data(_config.moderation.data, data)
-  send_large_msg(receiver, member_username..' has been promoted.')
+  send_large_msg(receiver, member_username..' به لیست مدیران گروه اضافه شد')
 end
 
 local function demote2(receiver, member_username, user_id)
   local data = load_data(_config.moderation.data)
+  local member_tag_username = string.gsub(member_username, '@', '(at)')
   local group = string.gsub(receiver, 'channel#id', '')
   if not data[group] then
-    return send_large_msg(receiver, 'Group is not added.')
+    return send_large_msg(receiver, 'گروه اضافه نشده است!')
   end
   if not data[group]['moderators'][tostring(user_id)] then
-    return send_large_msg(receiver, member_tag_username..' is not a moderator.')
+    return send_large_msg(receiver, member_tag_username..' مدیر گروه نیست')
   end
   data[group]['moderators'][tostring(user_id)] = nil
   save_data(_config.moderation.data, data)
-  send_large_msg(receiver, member_username..' has been demoted.')
+  send_large_msg(receiver, member_username..' از لیست مدیران گروه پاک شد')
 end
 
 local function modlist(msg)
   local data = load_data(_config.moderation.data)
   local groups = "groups"
   if not data[tostring(groups)][tostring(msg.to.id)] then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "سوپر گروه اد نشده"
-	else
-    return "<code>SuperGroup is not added.</code>"
-   end
+    return 'سوپر گروه اضافه نشده است!'
   end
   -- determine if table is empty
   if next(data[tostring(msg.to.id)]['moderators']) == nil then
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
-    return "هیچ مدیری دراین گروه وجود ندارد"
-	else
-    return "<code>No moderator in this group.</code>"
+    return 'هیچ مدیری در گروه وجود ندارد'
   end
- end
-  local hash = 'group:'..msg.to.id
-  local group_lang = redis:hget(hash,'lang')
-  if group_lang then
   local i = 1
-  local messagefa = '\nلیست مدیران گروه : ' .. string.gsub(msg.to.print_name, '_', ' ') .. '\n'
+  local message = 'لیست مدیران گروه ' .. string.gsub(msg.to.print_name, '_', ' ') .. ':\n\n'
   for k,v in pairs(data[tostring(msg.to.id)]['moderators']) do
-  messagefa = messagefa ..i..' -> '..v..' [' ..k.. '] \n'
-  i = i + 2
-  end
-  return messagefa
-  else
-  local i = 1
-  local message = '\nList of moderators for ' .. string.gsub(msg.to.print_name, '_', ' ') .. ':\n'
-  for k,v in pairs(data[tostring(msg.to.id)]['moderators']) do
-  message = message ..i..' -> '..v..' [' ..k.. '] \n'
-  i = i + 1
+  if string.match(v , "(at)") then v = v:gsub(".at.","@") end
+    message = message ..i..' - '..v..' [' ..k.. '] \n' 
+    i = i + 1
   end
   return message
- end
 end
+
 -- Start by reply actions
 function get_message_callback(extra, success, result)
 	local get_cmd = extra.get_cmd
@@ -952,7 +764,7 @@ function get_message_callback(extra, success, result)
 	local name_log = print_name:gsub("_", " ")
     if get_cmd == "id" and not result.action then
 		local channel = 'channel#id'..result.to.peer_id
-		savelog(msg.to.id, name_log.." ["..msg.from.id.."] obtained id for: ["..result.from.peer_id.."]")
+		savelog(msg.to.id, name_log.." ["..msg.from.id.."] obtained id for: ["..result.from.peer_id.."]") --sosha
 		id1 = send_large_msg(channel, result.from.peer_id)
 	elseif get_cmd == 'id' and result.action then
 		local action = result.action.type
@@ -963,24 +775,24 @@ function get_message_callback(extra, success, result)
 				user_id = result.peer_id
 			end
 			local channel = 'channel#id'..result.to.peer_id
-			savelog(msg.to.id, name_log.." ["..msg.from.id.."] obtained id by service msg for: ["..user_id.."]")
+			savelog(msg.to.id, name_log.." ["..msg.from.id.."] obtained id by service msg for: ["..user_id.."]") --sosha
 			id1 = send_large_msg(channel, user_id)
 		end
     elseif get_cmd == "idfrom" then
 		local channel = 'channel#id'..result.to.peer_id
-		savelog(msg.to.id, name_log.." ["..msg.from.id.."] obtained id for msg fwd from: ["..result.fwd_from.peer_id.."]")
+		savelog(msg.to.id, name_log.." ["..msg.from.id.."] obtained id for msg fwd from: ["..result.fwd_from.peer_id.."]") --sosha
 		id2 = send_large_msg(channel, result.fwd_from.peer_id)
     elseif get_cmd == 'channel_block' and not result.action then
 		local member_id = result.from.peer_id
 		local channel_id = result.to.peer_id
     if member_id == msg.from.id then
-      return send_large_msg("channel#id"..channel_id, "Leave using kickme command")
+      return send_large_msg("channel#id"..channel_id, "Leave using kickme command") --sosha
     end
     if is_momod2(member_id, channel_id) and not is_admin2(msg.from.id) then
-			   return send_large_msg("channel#id"..channel_id, "You can't kick mods/owner/admins")
+			   return send_large_msg("channel#id"..channel_id, "You can't kick mods/owner/admins") --sosha
     end
     if is_admin2(member_id) then
-         return send_large_msg("channel#id"..channel_id, "You can't kick other admins")
+         return send_large_msg("channel#id"..channel_id, "You can't kick other admins") --sosha
     end
 		--savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: ["..user_id.."] by reply")
 		kick_user(member_id, channel_id)
@@ -988,13 +800,13 @@ function get_message_callback(extra, success, result)
 		local user_id = result.action.user.peer_id
 		local channel_id = result.to.peer_id
     if member_id == msg.from.id then
-      return send_large_msg("channel#id"..channel_id, "Leave using kickme command")
+      return send_large_msg("channel#id"..channel_id, "Leave using kickme command") --sosha
     end
     if is_momod2(member_id, channel_id) and not is_admin2(msg.from.id) then
-			   return send_large_msg("channel#id"..channel_id, "You can't kick mods/owner/admins")
+			   return send_large_msg("channel#id"..channel_id, "شما نمی توانید ادمین/مدیران/صاحب گروه را اخراج کنید")
     end
     if is_admin2(member_id) then
-         return send_large_msg("channel#id"..channel_id, "You can't kick other admins")
+         return send_large_msg("channel#id"..channel_id, "شما نمی توانید سایر ادمین ها را اخراج کنید")
     end
 		savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: ["..user_id.."] by reply to sev. msg.")
 		kick_user(user_id, channel_id)
@@ -1006,23 +818,23 @@ function get_message_callback(extra, success, result)
 		local channel_id = "channel#id"..result.to.peer_id
 		channel_set_admin(channel_id, "user#id"..user_id, ok_cb, false)
 		if result.from.username then
-			text = "@"..result.from.username.." set as an admin"
+			text = "@"..result.from.username.." به لیست سرپرستان گروه اضافه شد"
 		else
-			text = "[ "..user_id.." ]set as an admin"
+			text = "[ "..user_id.." ] به لیست سرپرستان گروه اضافه شد"
 		end
-		savelog(msg.to.id, name_log.." ["..msg.from.id.."] set: ["..user_id.."] as admin by reply")
+		savelog(msg.to.id, name_log.." ["..msg.from.id.."] set: ["..user_id.."] as admin by reply") 
 		send_large_msg(channel_id, text)
 	elseif get_cmd == "demoteadmin" then
 		local user_id = result.from.peer_id
 		local channel_id = "channel#id"..result.to.peer_id
 		if is_admin2(result.from.peer_id) then
-			return send_large_msg(channel_id, "You can't demote global admins!")
+			return send_large_msg(channel_id, "شما ادمین کل را نمی توانید برکنار کنید")
 		end
 		channel_demote(channel_id, "user#id"..user_id, ok_cb, false)
 		if result.from.username then
-			text = "@"..result.from.username.." has been demoted from admin"
+			text = "@"..result.from.username.." از لیست سرپرستان گروه حذف شد"
 		else
-			text = "[ "..user_id.." ] has been demoted from admin"
+			text = "[ "..user_id.." ] از لیست مدیران گروه پاک شد"
 		end
 		savelog(msg.to.id, name_log.." ["..msg.from.id.."] demoted: ["..user_id.."] from admin by reply")
 		send_large_msg(channel_id, text)
@@ -1040,9 +852,9 @@ function get_message_callback(extra, success, result)
 			save_data(_config.moderation.data, data)
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] set: ["..result.from.peer_id.."] as owner by reply")
 			if result.from.username then
-				text = "@"..result.from.username.." [ "..result.from.peer_id.." ] added as owner"
+				text = "@"..result.from.username.." [ "..result.from.peer_id.." ] به صاحب گروه منتصب شد"
 			else
-				text = "[ "..result.from.peer_id.." ] added as owner"
+				text = "[ "..result.from.peer_id.." ] به صاحب گروه منتصب شد"
 			end
 			send_large_msg(channel_id, text)
 		end
@@ -1061,17 +873,19 @@ function get_message_callback(extra, success, result)
 	    --channel_set_mod(channel_id, user, ok_cb, false)
 		end
 	elseif get_cmd == "demote" then
+		local receiver = result.to.peer_id
 		local full_name = (result.from.first_name or '')..' '..(result.from.last_name or '')
 		local member_name = full_name:gsub("‮", "")
 		local member_username = member_name:gsub("_", " ")
-    if result.from.username then
-		member_username = '@'.. result.from.username
-    end
+		if result.from.username then
+			member_username = '@'.. result.from.username
+		end
 		local member_id = result.from.peer_id
-		--local user = "user#id"..result.peer_id
-		savelog(msg.to.id, name_log.." ["..msg.from.id.."] demoted mod: @"..member_username.."["..user_id.."] by reply")
+		if result.to.peer_type == 'channel' then
+		savelog(msg.to.id, name_log.." ["..msg.from.id.."] demoted mod: @"..member_username.."["..result.from.peer_id.."] by reply")
 		demote2("channel#id"..result.to.peer_id, member_username, member_id)
-		--channel_demote(channel_id, user, ok_cb, false)
+	    --channel_set_mod(channel_id, user, ok_cb, false)
+		end
 	elseif get_cmd == 'mute_user' then
 		if result.service then
 			local action = result.action.type
@@ -1094,14 +908,13 @@ function get_message_callback(extra, success, result)
 		print(chat_id)
 		if is_muted_user(chat_id, user_id) then
 			unmute_user(chat_id, user_id)
-			send_large_msg(receiver, "["..user_id.."] removed from the muted user list")
+			send_large_msg(receiver, "["..user_id.."] از لیست Mute کاربران حذف شد")
 		elseif is_admin1(msg) then
 			mute_user(chat_id, user_id)
-			send_large_msg(receiver, " ["..user_id.."] added to the muted user list")
+			send_large_msg(receiver, " ["..user_id.."] به لیست Mute کاربران اضافه شد")
 		end
 	end
 end
--- End by reply actions
 
 --By ID actions
 local function cb_user_info(extra, success, result)
@@ -1120,15 +933,15 @@ local function cb_user_info(extra, success, result)
 			send_large_msg(receiver, text)]]
 	if get_cmd == "demoteadmin" then
 		if is_admin2(result.peer_id) then
-			return send_large_msg(receiver, "You can't demote global admins!")
+			return send_large_msg(receiver, "شما ادمین کل را نمی توانید برکنار کنید")
 		end
 		local user_id = "user#id"..result.peer_id
 		channel_demote(receiver, user_id, ok_cb, false)
 		if result.username then
-			text = "@"..result.username.." has been demoted from admin"
+			text = "@"..result.username.." از لیست سرپرستان گروه حذف شد"
 			send_large_msg(receiver, text)
 		else
-			text = "[ "..result.peer_id.." ] has been demoted from admin"
+			text = "[ "..result.peer_id.." ] از لیست سرپرستان گروه حذف شد"
 			send_large_msg(receiver, text)
 		end
 	elseif get_cmd == "promote" then
@@ -1230,14 +1043,14 @@ local function callbackres(extra, success, result)
 		local user_id = "user#id"..result.peer_id
 		local channel_id = extra.channel
 		if is_admin2(result.peer_id) then
-			return send_large_msg(channel_id, "You can't demote global admins!")
+			return send_large_msg(channel_id, "شما ادمین کل را نمی توانید برکنار کنید")
 		end
 		channel_demote(channel_id, user_id, ok_cb, false)
 		if result.username then
-			text = "@"..result.username.." has been demoted from admin"
+			text = "@"..result.username.." از لیست سرپرستان گروه حذف شد"
 			send_large_msg(channel_id, text)
 		else
-			text = "@"..result.peer_id.." has been demoted from admin"
+			text = "@"..result.peer_id.." از لیست سرپرستان گروه حذف شد"
 			send_large_msg(channel_id, text)
 		end
 		local receiver = extra.channel
@@ -1249,10 +1062,10 @@ local function callbackres(extra, success, result)
 		local chat_id = string.gsub(receiver, 'channel#id', '')
 		if is_muted_user(chat_id, user_id) then
 			unmute_user(chat_id, user_id)
-			send_large_msg(receiver, " ["..user_id.."] removed from muted user list")
+			send_large_msg(receiver, " ["..user_id.."] از لیست Mute کاربران پاک شد")
 		elseif is_owner(extra.msg) then
 			mute_user(chat_id, user_id)
-			send_large_msg(receiver, " ["..user_id.."] added to muted user list")
+			send_large_msg(receiver, " ["..user_id.."] به لیست Mute کاربران اضافه شد")
 		end
 	end
 end
@@ -1269,9 +1082,9 @@ local function in_channel_cb(cb_extra, success, result)
   local member = cb_extra.username
   local memberid = cb_extra.user_id
   if member then
-    text = 'No user @'..member..' in this SuperGroup.'
+    text = 'No user @'..member..' in this SuperGroup.' --sosha
   else
-    text = 'No user ['..memberid..'] in this SuperGroup.'
+    text = 'No user ['..memberid..'] in this SuperGroup.' --sosha
   end
 if get_cmd == "channel_block" then
   for k,v in pairs(result) do
@@ -1282,23 +1095,22 @@ if get_cmd == "channel_block" then
      local channel_id = cb_extra.msg.to.id
      local sender = cb_extra.msg.from.id
       if user_id == sender then
-        return send_large_msg("channel#id"..channel_id, "Leave using kickme command")
+        return send_large_msg("channel#id"..channel_id, "Leave using kickme command") --sosha
       end
       if is_momod2(user_id, channel_id) and not is_admin2(sender) then
-        return send_large_msg("channel#id"..channel_id, "You can't kick mods/owner/admins")
+        return send_large_msg("channel#id"..channel_id, "You can't kick mods/owner/admins") --sosha
       end
       if is_admin2(user_id) then
-        return send_large_msg("channel#id"..channel_id, "You can't kick other admins")
+        return send_large_msg("channel#id"..channel_id, "You can't kick other admins") --sosha
       end
       if v.username then
         text = ""
-        savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: @"..v.username.." ["..v.peer_id.."]")
+        savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: @"..v.username.." ["..v.peer_id.."]") --sosha
       else
         text = ""
-        savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: ["..v.peer_id.."]")
+        savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: ["..v.peer_id.."]") --sosha
       end
       kick_user(user_id, channel_id)
-      return
     end
   end
 elseif get_cmd == "setadmin" then
@@ -1310,10 +1122,10 @@ elseif get_cmd == "setadmin" then
       local channel_id = "channel#id"..cb_extra.msg.to.id
       channel_set_admin(channel_id, user_id, ok_cb, false)
       if v.username then
-        text = "@"..v.username.." ["..v.peer_id.."] has been set as an admin"
+        text = "@"..v.username.." ["..v.peer_id.."] به لیست سرپرستان گروه اضافه شد"
         savelog(msg.to.id, name_log.." ["..msg.from.id.."] set admin @"..v.username.." ["..v.peer_id.."]")
       else
-        text = "["..v.peer_id.."] has been set as an admin"
+        text = "["..v.peer_id.."] به لیست سرپرستان گروه اضافه شد"
         savelog(msg.to.id, name_log.." ["..msg.from.id.."] set admin "..v.peer_id)
       end
 	  if v.username then
@@ -1324,10 +1136,8 @@ elseif get_cmd == "setadmin" then
 		local receiver = channel_id
 		local user_id = v.peer_id
 		promote_admin(receiver, member_username, user_id)
-
     end
     send_large_msg(channel_id, text)
-    return
  end
  elseif get_cmd == 'setowner' then
 	for k,v in pairs(result) do
@@ -1348,15 +1158,9 @@ elseif get_cmd == "setadmin" then
 					save_data(_config.moderation.data, data)
 					savelog(channel, name_log.."["..from_id.."] set ["..v.peer_id.."] as owner by username")
 				if result.username then
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				    textfa = member_username.." ["..v.peer_id.."]اضافه شد به عنوان صاحب گروه"
-					else
-					text = member_username.." ["..v.peer_id.."] added as owner"
-					end
+					text = member_username.." ["..v.peer_id.."] به صاحب گروه منتصب شد"
 				else
-					text = "["..v.peer_id.."] added as owner"
+					text = "به صاحب گروه منتصب شد ["..v.peer_id.."]"
 				end
 			end
 		elseif memberid and vusername ~= member and vpeer_id ~= memberid then
@@ -1371,74 +1175,67 @@ elseif get_cmd == "setadmin" then
 				data[tostring(channel)]['set_owner'] = tostring(memberid)
 				save_data(_config.moderation.data, data)
 				savelog(channel, name_log.."["..from_id.."] set ["..memberid.."] as owner by username")
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				textfa = "اضافه شدبه عنوان صاحب گروه\n ایدی کاربر:"..memberid.."یوزرنیم کاربر:\n"..v.peer_id..""
-				else
-				text = "added as owner\nID:["..memberid.."]"
+				text = "["..memberid.."] به صاحب گروه منتصب شد"
 			end
-		 end
-	  end
-   end
-end
+		end
+	end
+ end
 send_large_msg(receiver, text)
 end
 --End non-channel_invite username actions
-
+function muted_user_list2(chat_id)
+	local hash =  'mute_user:'..chat_id
+	local list = redis:smembers(hash)
+	local text = "لیست کاربران Mute شده ["..chat_id.."]:\n\n"
+	for k,v in pairsByKeys(list) do
+  		local user_info = redis:hgetall('user:'..v)
+		if user_info and user_info.print_name then
+			local print_name = string.gsub(user_info.print_name, "_", " ")
+			local print_name = string.gsub(print_name, "‮", "")
+			text = text..k.." - "..print_name.." ["..v.."]\n"
+		else
+		text = text..k.." - [ "..v.." ]\n"
+	        end
+        end
+  return text
+end
 --'Set supergroup photo' function
 local function set_supergroup_photo(msg, success, result)
   local data = load_data(_config.moderation.data)
-  if not data[tostring(msg.to.id)] then
-      return
-  end
   local receiver = get_receiver(msg)
   if success then
-    local file = 'data/photos/channel_photo_'..msg.to.id..'.jpg'
+    local file = 'data/photos/channel_photo_'..msg.to.id..'.jpg' 
     print('File downloaded to:', result)
     os.rename(result, file)
     print('File moved to:', file)
     channel_set_photo(receiver, file, ok_cb, false)
     data[tostring(msg.to.id)]['settings']['set_photo'] = file
     save_data(_config.moderation.data, data)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-    send_large_msg(receiver, 'عکس ذخیره شد', ok_cb, false)
-	else
-	send_large_msg(receiver, 'Photo saved!', ok_cb, false)
-	end
+    send_large_msg(receiver, 'عکس جدید با موفقیت ذخیره شد', ok_cb, false)
   else
     print('Error downloading: '..msg.id)
-	local hash = 'group:'..msg.to.id
-    local group_lang = redis:hget(hash,'lang')
-    if group_lang then
-	send_large_msg(receiver, 'لطفا دوباره تلاش کنید!', ok_cb, false)
-	else
-    send_large_msg(receiver, 'Failed, please try again!', ok_cb, false)
-   end
-  end
- end
---Run function
-   local function run(msg, matches)
-   local hash = 'group:'..msg.to.id
-   local group_lang = redis:hget(hash,'lang')
-   if msg.to.type == 'chat' then
-   if matches[1] == 'tosuper' then 
-   if not is_admin1(msg) then
-   return
-      end
-  local receiver = get_receiver(msg)
-  chat_upgrade(receiver, ok_cb, false)
-      end
-  elseif msg.to.type == 'channel'then
-  if matches[1] == 'tosuper' then
-  if not is_admin1(msg) then
-  return
-      end
-  return "Already a SuperGroup"
+    send_large_msg(receiver, 'عملیات ناموفق، مجددا تلاش کنید!', ok_cb, false) 
   end
 end
+
+--Run function
+local function run(msg, matches)
+	if msg.to.type == 'chat' then
+		if matches[1] == 'tosuper' then 
+			if not is_admin1(msg) then
+				return
+			end
+			local receiver = get_receiver(msg)
+			chat_upgrade(receiver, ok_cb, false)
+		end
+	elseif msg.to.type == 'channel'then
+		if matches[1] == 'tosuper' then
+			if not is_admin1(msg) then
+				return
+			end
+			return "از قبل سوپر گروه بوده است"
+		end
+	end
 	if msg.to.type == 'channel' then
 	local support_id = msg.from.id
 	local receiver = get_receiver(msg)
@@ -1450,50 +1247,33 @@ end
 				return
 			end
 			if is_super_group(msg) then
-	        local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return reply_msg(msg.id, "سوپرگروه[" ..string.gsub(msg.to.print_name, "_", " ").. "]ازقبل اضافه شدبود\nتوسط:["..msg.from.id.."]", ok_cb, false)
-				else
-				return reply_msg(msg.id, "SuperGroup[" ..string.gsub(msg.to.print_name, "_", " ").. "]already added\nby:["..msg.from.id.."]", ok_cb, false)
-			 end
+				return reply_msg(msg.id, 'سوپر گروه از قبل اضافه شده است!', ok_cb, false)
 			end
-			print("supergroup"..msg.to.print_name.."("..msg.to.id..") added")
+			print("SuperGroup "..msg.to.print_name.."("..msg.to.id..") added")
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] added SuperGroup")
 			superadd(msg)
 			set_mutes(msg.to.id)
 			channel_set_admin(receiver, 'user#id'..msg.from.id, ok_cb, false)
 		end
+
 		if matches[1] == 'rem' and is_admin1(msg) and not matches[2] then
 			if not is_super_group(msg) then
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-				return reply_msg(msg.id,"سوپرگروه[" ..string.gsub(msg.to.print_name, "_", " ").. "]اضافه نشده بود" , ok_cb, false)
-				else
-				return reply_msg(msg.id,"SuperGroup[" ..string.gsub(msg.to.print_name, "_", " ").. "]not added", ok_cb, false)
-			 end
+				return reply_msg(msg.id, 'سوپر گروه اضافه نشده است!', ok_cb, false)
 			end
 			print("SuperGroup "..msg.to.print_name.."("..msg.to.id..") removed")
 			superrem(msg)
 			rem_mutes(msg.to.id)
 		end
 
-		if not data[tostring(msg.to.id)] then
-			return
-		end
-		if matches[1] == "info" then
-			if not is_owner(msg) then
-				return
-			end
+		if matches[1] == "gpinfo" then 
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested SuperGroup info")
 			channel_info(receiver, callback_info, {receiver = receiver, msg = msg})
 		end
 
 		if matches[1] == "admins" then
-			if not is_owner(msg) and not is_support(msg.from.id) then
-				return
-			end
+			--if not is_owner(msg) and not is_support(msg.from.id) then
+			--	return
+			--end
 			member_type = 'Admins'
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested SuperGroup Admins list")
 			admins = channel_get_admins(receiver,callback, {receiver = receiver, msg = msg, member_type = member_type})
@@ -1502,31 +1282,20 @@ end
 		if matches[1] == "owner" then
 			local group_owner = data[tostring(msg.to.id)]['set_owner']
 			if not group_owner then
-		    local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return "صاحبی برای این گروه انتخاب نشده لطفا  با سودو ها صحبت کنید"
-				else
-				return "no owner,ask admins in support groups to set owner for your SuperGroup"
-			 end
+				return "این گروه صاحبی ندارد.\nلطفا با نوشتن دستور زیر به ادمین ربات اطلاع دهید\n/contact"
 			end
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] used /owner")
-		    local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			return " صاحب سوپرگروه\n ⚜["..group_owner.."]⚜"
-			else
-			return "SuperGroup owner is\n ⚜["..group_owner.."]⚜"
-		 end
-        end
+			return "صاحب گروه می باشد ["..group_owner..']'
+		end
+
 		if matches[1] == "modlist" then
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested group modlist")
 			return modlist(msg)
 			-- channel_get_admins(receiver,callback, {receiver = receiver})
 		end
 
-		if matches[1] == "bots" and is_momod(msg) then
-			member_type = 'Bots'
+		if matches[1] == "bots" and is_momod(msg) then --sosha
+			member_type = 'Bots' --sosha
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested SuperGroup bots list")
 			channel_get_bots(receiver, callback, {receiver = receiver, msg = msg, member_type = member_type})
 		end
@@ -1553,14 +1322,14 @@ end
 			end
 		end
 
-		if matches[1] == 'kick' and is_momod(msg) then
+		if matches[1] == 'block' and is_momod(msg) then 
 			if type(msg.reply_id) ~= "nil" then
 				local cbreply_extra = {
 					get_cmd = 'channel_block',
 					msg = msg
 				}
 				get_message(msg.reply_id, get_message_callback, cbreply_extra)
-			elseif matches[1] == 'kick' and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'block' and string.match(matches[2], '^%d+$') then
 				--[[local user_id = matches[2]
 				local channel_id = msg.to.id
 				if is_momod2(user_id, channel_id) and not is_admin2(user_id) then
@@ -1568,11 +1337,11 @@ end
 				end
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked: [ user#id"..user_id.." ]")
 				kick_user(user_id, channel_id)]]
-				local get_cmd = 'channel_block'
-				local msg = msg
+				local	get_cmd = 'channel_block'
+				local	msg = msg
 				local user_id = matches[2]
 				channel_get_users (receiver, in_channel_cb, {get_cmd=get_cmd, receiver=receiver, msg=msg, user_id=user_id})
-			elseif matches[1] == "kick" and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif msg.text:match("@[%a%d]") then
 			--[[local cbres_extra = {
 					channelid = msg.to.id,
 					get_cmd = 'channel_block',
@@ -1614,19 +1383,13 @@ end
 				resolve_username(username,  callbackres, cbres_extra)
 			else
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested SuperGroup ID")
-				  local hash = 'group:'..msg.to.id
-                  local group_lang = redis:hget(hash,'lang')
-                  if group_lang then
-				return "ایدی سوپر گروه:"..msg.to.id.."\nایدی کاربری:"..msg.from.id.."\nیوزرنیم کاربری:@"..msg.from.username
-				else
-				return "supergroup ID:"..msg.to.id.."\nYour ID:"..msg.from.id.."\nYour user:@"..msg.from.username
-    end
-  end
-end
+				return "آی دی (ID) سوپر گروه " ..string.gsub(msg.to.print_name, "_", " ").. ":\n\n"..msg.to.id
+			end
+		end
+
 		if matches[1] == 'kickme' then
 			if msg.to.type == 'channel' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] left via kickme")
-				channel_kick("channel#id"..msg.to.id, "user#id"..msg.from.id, ok_cb, false)
+            return 'این دستور در سوپر گروه غیرفعال است'
 			end
 		end
 
@@ -1634,84 +1397,49 @@ end
 			local function callback_link (extra , success, result)
 			local receiver = get_receiver(msg)
 				if success == 0 then
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-					send_large_msg(receiver, 'هشدار:\nاین گروه برای ربات نیست شما میتونید از دستور[/setlink]استفاده کنید\nباتشکرتیم پارت\n@PartTeam')
+					send_large_msg(receiver, '*خطا: دریافت لینک گروه ناموفق*\nدلیل: ربات سازنده گروه نمی باشد.\n\nبا ادمین صحبت کنید.\n/contact')
 					data[tostring(msg.to.id)]['settings']['set_link'] = nil
 					save_data(_config.moderation.data, data)
 				else
-					send_large_msg(receiver, '*Error: Failed to retrieve link* \nReason: Not creator.\n\nIf you have the link, please use /setlink to set it\nThanks to the Part\n@PartTeam')
-					data[tostring(msg.to.id)]['settings']['set_link'] = nil
-					save_data(_config.moderation.data, data)
-					end
-					else
-					if group_lang then
-					send_large_msg(receiver, "لینک جدید ساخته شد\nتوسط:"..string.gsub(msg.from.print_name, "_", " ").."")
-					data[tostring(msg.to.id)]['settings']['set_link'] = result
-					save_data(_config.moderation.data, data)
-					else
-				    send_large_msg(receiver, "Created a new link\nby:"..string.gsub(msg.from.print_name, "_", " ").."")
+					send_large_msg(receiver, "لینک جدید ساخته شد\n\nبرای نمایش لینک جدید، دستور زیر را تایپ کنی\n/link")
 					data[tostring(msg.to.id)]['settings']['set_link'] = result
 					save_data(_config.moderation.data, data)
 				end
 			end
-		end
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] attempted to create a new SuperGroup link")
 			export_channel_link(receiver, callback_link, false)
 		end
 
-		if matches[1] == 'setlink' and is_owner(msg) then
-			data[tostring(msg.to.id)]['settings']['set_link'] = 'waiting'
+		--[[if matches[1] == 'setlink' and is_owner(msg) then
+			data[tostring(msg.to.id)]['settings']['set_link'] = 'waiting' --sosha
 			save_data(_config.moderation.data, data)
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			return ""..string.gsub(msg.from.print_name, "_", " ").." لطفا لینک جدید ارسال کنید"
-			else
-			return ""..string.gsub(msg.from.print_name, "_", " ").." Please send the new group link now"
+			return 'Please send the new group link now' --sosha
 		end
-     end
+
 		if msg.text then
 			if msg.text:match("^(https://telegram.me/joinchat/%S+)$") and data[tostring(msg.to.id)]['settings']['set_link'] == 'waiting' and is_owner(msg) then
 				data[tostring(msg.to.id)]['settings']['set_link'] = msg.text
 				save_data(_config.moderation.data, data)
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				return "لینک ست شد"
-				else
-				return "New link set"
+				return "New link set" --sosha
 			end
-		end
-    end
+		end]]
+
 		if matches[1] == 'link' then
 			if not is_momod(msg) then
 				return
 			end
 			local group_link = data[tostring(msg.to.id)]['settings']['set_link']
 			if not group_link then
-		    local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return ""..string.gsub(msg.from.print_name, "_", " ").." شما هنوز لینکی نساختید برای ساخت لینک جدید از دستور[/newlink]ومیتونید برای تعویض لینک از دستور[/setlink]استفاده کنید\n باتشکرتیم پارت\n@PartTeam"
-				else
-				return ""..string.gsub(msg.from.print_name, "_", " ").." Create a link using [/newlink] first!\nOr if I am not creator use [/setlink] to set your link\nThanks to the Part\n@PartTeam"
-			 end
+				return "برای اولین بار ابتدا باید newlink/ را تایپ کنید"
 			end
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested group link ["..group_link.."]")
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			return "نام گروه:["..string.gsub(msg.to.print_name, "_", " ").."]\nلینک سوپر گروه:\n"..group_link
-			else
-			return "Group name:["..string.gsub(msg.to.print_name, "_", " ").."]\nGroup link:\n"..group_link
+			return "لینک سوپر گروه:\n"..group_link
 		end
-      end
+
 		if matches[1] == "invite" and is_sudo(msg) then
 			local cbres_extra = {
 				channel = get_receiver(msg),
-				get_cmd = "invite"
+				get_cmd = "invite" --sosha
 			}
 			local username = matches[2]
 			local username = username:gsub("@","")
@@ -1719,16 +1447,16 @@ end
 			resolve_username(username,  callbackres, cbres_extra)
 		end
 
-		if matches[1] == 'res' and is_owner(msg) then
+		--[[if matches[1] == 'res' and is_owner(msg) then --sosha
 			local cbres_extra = {
 				channelid = msg.to.id,
 				get_cmd = 'res'
 			}
 			local username = matches[2]
 			local username = username:gsub("@","")
-			savelog(msg.to.id, name_log.." ["..msg.from.id.."] resolved username: @"..username)
+			savelog(msg.to.id, name_log.." ["..msg.from.id.."] resolved username: @"..username) --sosha
 			resolve_username(username,  callbackres, cbres_extra)
-		end
+		end]]
 
 		--[[if matches[1] == 'kick' and is_momod(msg) then
 			local receiver = channel..matches[3]
@@ -1746,16 +1474,16 @@ end
 					msg = msg
 				}
 				setadmin = get_message(msg.reply_id, get_message_callback, cbreply_extra)
-			elseif matches[1] == 'setadmin' and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'setadmin' and string.match(matches[2], '^%d+$') then
 			--[[]	local receiver = get_receiver(msg)
 				local user_id = "user#id"..matches[2]
 				local get_cmd = 'setadmin'
 				user_info(user_id, cb_user_info, {receiver = receiver, get_cmd = get_cmd})]]
-				local get_cmd = 'setadmin'
-				local msg = msg
+				local	get_cmd = 'setadmin'
+				local	msg = msg
 				local user_id = matches[2]
 				channel_get_users (receiver, in_channel_cb, {get_cmd=get_cmd, receiver=receiver, msg=msg, user_id=user_id})
-			elseif matches[1] == 'setadmin' and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'setadmin' and not string.match(matches[2], '^%d+$') then
 				--[[local cbres_extra = {
 					channel = get_receiver(msg),
 					get_cmd = 'setadmin'
@@ -1764,8 +1492,8 @@ end
 				local username = string.gsub(matches[2], '@', '')
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] set admin @"..username)
 				resolve_username(username, callbackres, cbres_extra)]]
-				local get_cmd = 'setadmin'
-				local msg = msg
+				local	get_cmd = 'setadmin'
+				local	msg = msg
 				local username = matches[2]
 				local username = string.gsub(matches[2], '@', '')
 				channel_get_users (receiver, in_channel_cb, {get_cmd=get_cmd, receiver=receiver, msg=msg, username=username})
@@ -1782,12 +1510,12 @@ end
 					msg = msg
 				}
 				demoteadmin = get_message(msg.reply_id, get_message_callback, cbreply_extra)
-			elseif matches[1] == 'demoteadmin' and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'demoteadmin' and string.match(matches[2], '^%d+$') then
 				local receiver = get_receiver(msg)
 				local user_id = "user#id"..matches[2]
 				local get_cmd = 'demoteadmin'
 				user_info(user_id, cb_user_info, {receiver = receiver, get_cmd = get_cmd})
-			elseif matches[1] == 'demoteadmin' and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'demoteadmin' and not string.match(matches[2], '^%d+$') then
 				local cbres_extra = {
 					channel = get_receiver(msg),
 					get_cmd = 'demoteadmin'
@@ -1806,7 +1534,7 @@ end
 					msg = msg
 				}
 				setowner = get_message(msg.reply_id, get_message_callback, cbreply_extra)
-			elseif matches[1] == 'setowner' and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'setowner' and string.match(matches[2], '^%d+$') then
 		--[[	local group_owner = data[tostring(msg.to.id)]['set_owner']
 				if group_owner then
 					local receiver = get_receiver(msg)
@@ -1826,7 +1554,7 @@ end
 				local	msg = msg
 				local user_id = matches[2]
 				channel_get_users (receiver, in_channel_cb, {get_cmd=get_cmd, receiver=receiver, msg=msg, user_id=user_id})
-			elseif matches[1] == 'setowner' and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'setowner' and not string.match(matches[2], '^%d+$') then
 				local	get_cmd = 'setowner'
 				local	msg = msg
 				local username = matches[2]
@@ -1840,13 +1568,7 @@ end
 				return
 			end
 			if not is_owner(msg) then
-		    local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return "فقط برای صاحب گروه امکان پذیر است"
-				else
-				return "Only owner/admin can promote"
-				end
+				return "فقط صاحب گروه توانایی اضافه کردن مدیر را دارد"
 			end
 			if type(msg.reply_id) ~= "nil" then
 				local cbreply_extra = {
@@ -1854,35 +1576,35 @@ end
 					msg = msg
 				}
 				promote = get_message(msg.reply_id, get_message_callback, cbreply_extra)
-			elseif matches[1] == 'promote' and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'promote' and string.match(matches[2], '^%d+$') then
 				local receiver = get_receiver(msg)
 				local user_id = "user#id"..matches[2]
 				local get_cmd = 'promote'
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] promoted user#id"..matches[2])
 				user_info(user_id, cb_user_info, {receiver = receiver, get_cmd = get_cmd})
-			elseif matches[1] == 'promote' and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'promote' and not string.match(matches[2], '^%d+$') then
 				local cbres_extra = {
 					channel = get_receiver(msg),
 					get_cmd = 'promote',
 				}
 				local username = matches[2]
 				local username = string.gsub(matches[2], '@', '')
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] promoted @"..username)
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] promoted @"..username) 
 				return resolve_username(username, callbackres, cbres_extra)
 			end
 		end
 
-		if matches[1] == 'mp' and is_sudo(msg) then
+		if matches[1] == 'setmod' and is_sudo(msg) then
 			channel = get_receiver(msg)
 			user_id = 'user#id'..matches[2]
 			channel_set_mod(channel, user_id, ok_cb, false)
-			return "ok"
+			return "به ادمین گروه منتصب شد"
 		end
-		if matches[1] == 'md' and is_sudo(msg) then
+		if matches[1] == 'remmod' and is_sudo(msg) then
 			channel = get_receiver(msg)
 			user_id = 'user#id'..matches[2]
 			channel_demote(channel, user_id, ok_cb, false)
-			return "ok"
+			return "از ادمین گروه برداشته شد"
 		end
 
 		if matches[1] == 'demote' then
@@ -1890,13 +1612,7 @@ end
 				return
 			end
 			if not is_owner(msg) then
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return "فقط برای صاحب گروه"
-				else
-				return "Only owner/support/admin can promote"
-			 end
+				return "فقط صاحب گروه قادر به حذف کردن مدیر می باشد"
 			end
 			if type(msg.reply_id) ~= "nil" then
 				local cbreply_extra = {
@@ -1904,13 +1620,13 @@ end
 					msg = msg
 				}
 				demote = get_message(msg.reply_id, get_message_callback, cbreply_extra)
-			elseif matches[1] == 'demote' and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == 'demote' and string.match(matches[2], '^%d+$') then
 				local receiver = get_receiver(msg)
 				local user_id = "user#id"..matches[2]
 				local get_cmd = 'demote'
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] demoted user#id"..matches[2])
 				user_info(user_id, cb_user_info, {receiver = receiver, get_cmd = get_cmd})
-			elseif matches[1] == 'demote' and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif not string.match(matches[2], '^%d+$') then
 				local cbres_extra = {
 					channel = get_receiver(msg),
 					get_cmd = 'demote'
@@ -1935,7 +1651,7 @@ end
 			save_data(_config.moderation.data, data)
 		end
 
-		if matches[1] == "setabout" and is_momod(msg) then
+		if matches[1] == "setdesc" and is_momod(msg) then
 			local receiver = get_receiver(msg)
 			local about_text = matches[2]
 			local data_cat = 'description'
@@ -1944,27 +1660,23 @@ end
 			save_data(_config.moderation.data, data)
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup description to: "..about_text)
 			channel_set_about(receiver, about_text, ok_cb, false)
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			return "توضیحات سوپرگروه ذخیره شد"
-			else
-			return "Description has been set.\n\nSelect the chat again to see the changes."
-			end
+			return "موضوع گروه عوض شد\n\nبرای دیدن تغییرات، Description گروه را مشاهده کنید"
 		end
 
-		if matches[1] == "setusername" and is_admin1(msg) then
+		
+		
+		--[[if matches[1] == "setusername" and is_admin1(msg) then
 			local function ok_username_cb (extra, success, result)
 				local receiver = extra.receiver
 				if success == 1 then
-					send_large_msg(receiver, "SuperGroup username Set.\n\nSelect the chat again to see the changes.")
+					send_large_msg(receiver, "SuperGroup username Set.\n\nSelect the chat again to see the changes.") --sosha
 				elseif success == 0 then
-					send_large_msg(receiver, "Failed to set SuperGroup username.\nUsername may already be taken.\n\nNote: Username can use a-z, 0-9 and underscores.\nMinimum length is 5 characters.")
+					send_large_msg(receiver, "Failed to set SuperGroup username.\nUsername may already be taken.\n\nNote: Username can use a-z, 0-9 and underscores.\nMinimum length is 5 characters.") --sosha
 				end
 			end
 			local username = string.gsub(matches[2], '@', '')
 			channel_set_username(receiver, username, ok_username_cb, {receiver=receiver})
-		end
+		end]]
 
 		if matches[1] == 'setrules' and is_momod(msg) then
 			rules = matches[2]
@@ -1984,13 +1696,7 @@ end
 			data[tostring(msg.to.id)]['settings']['set_photo'] = 'waiting'
 			save_data(_config.moderation.data, data)
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] started setting new SuperGroup photo")
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			return "لطفا عکس جدیدسوپرگروه را ارسال کیند"..string.gsub(msg.from.print_name, "_", " ")..""
-			else
-			return ""..string.gsub(msg.from.print_name, "_", " ").."Please send the new group photo now"
-			end
+			return 'برای تغییر عکس گروه ،یک عکس بفرستید'
 		end
 
 		if matches[1] == 'clean' then
@@ -1998,95 +1704,55 @@ end
 				return
 			end
 			if not is_momod(msg) then
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return "فقط برای صاحب گروه"
-				else
-				return "Only owner can clean"
-				end
+				return "فقط مدیر قادر به حذف تمامی مدیران می باشد"
 			end
 			if matches[2] == 'modlist' then
 				if next(data[tostring(msg.to.id)]['moderators']) == nil then
-			    local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				    return "هیچ مدیری درگروه وجود ندارد"
-					else
-					return 'No moderator(s) in this SuperGroup.'
-				 end
+					return 'هیچ مدیری در این گروه وجود ندارد'
 				end
 				for k,v in pairs(data[tostring(msg.to.id)]['moderators']) do
 					data[tostring(msg.to.id)]['moderators'][tostring(k)] = nil
 					save_data(_config.moderation.data, data)
 				end
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] cleaned modlist")
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				return "همه مدیران پاک شدن"
-				else
-				return 'Modlist has been cleaned'
-				end
+				return 'تمامی مدیران از لیست مدیریت پاک شدند'
 			end
 			if matches[2] == 'rules' then
 				local data_cat = 'rules'
 				if data[tostring(msg.to.id)][data_cat] == nil then
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				    return "قوانینی درگروه ثبت نشده"
-					else
-					return "Rules have not been set"
-					end
+					return "قانون یا قوانینی ثبت نشده است"
 				end
 				data[tostring(msg.to.id)][data_cat] = nil
 				save_data(_config.moderation.data, data)
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] cleaned rules")
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				return "قوانین این گروه پاک شد"
-				else
-				return "Rules have been cleaned"
-				end
+				return 'قوانین گروه پاک شد'
 			end
-			if matches[2] == 'about' then
+                        if matches[2]:lower() == 'welcome' then
+	                        local hash = 'usecommands:'..msg.from.id..':'..msg.to.id
+                                redis:incr(hash)
+                                rules = matches[3]
+                                local target = msg.to.id
+                                savelog(msg.to.id, name_log.." ["..msg.from.id.."] has changed group welcome message to ["..matches[3].."]")
+                                return set_welcomemod(msg, data, target)
+                        end
+			if matches[2] == 'desc' then --sosha
 				local receiver = get_receiver(msg)
 				local about_text = ' '
 				local data_cat = 'description'
 				if data[tostring(msg.to.id)][data_cat] == nil then
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				    return "توضیحاتی در این گروه وجود ندارد"
-					else
-					return 'About is not set'
-					end
+					return 'موضوعی برای گروه ثبت نشده است'
 				end
 				data[tostring(msg.to.id)][data_cat] = nil
 				save_data(_config.moderation.data, data)
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] cleaned about")
 				channel_set_about(receiver, about_text, ok_cb, false)
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				return "توضیحات این گروه حذف شدند"
-				else
-				return "About has been cleaned"
-				end
+				return "موضوع گروه پاک شد"
 			end
-			if matches[2] == 'mutelist' then
+			if matches[2] == 'silentlist' then
 				chat_id = msg.to.id
 				local hash =  'mute_user:'..chat_id
 					redis:del(hash)
-				local hash = 'group:'..msg.to.id
-                local group_lang = redis:hget(hash,'lang')
-                if group_lang then
-				return "همه لیست افراد سایلنت  حذف شدند"
-				else
-				return "Mutelist Cleaned"
-				end
+				return "لیست تمامی کاربران Mute شده پاک شد"
 			end
 			if matches[2] == 'username' and is_admin1(msg) then
 				local function ok_username_cb (extra, success, result)
@@ -2103,24 +1769,27 @@ end
 			if matches[2] == "bots" and is_momod(msg) then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] kicked all SuperGroup bots")
 				channel_get_bots(receiver, callback_clean_bots, {msg = msg})
+				return "تمامی ربات ها از سوپر گروه پاک شدند"
 			end
 		end
 
 		if matches[1] == 'lock' and is_momod(msg) then
 			local target = msg.to.id
-			if matches[2] == 'links' then
+			if matches[2] == 'link' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked link posting ")
 				return lock_group_links(msg, data, target)
 			end
+
 			if matches[2] == 'spam' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked spam ")
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked spam ") 
 				return lock_group_spam(msg, data, target)
 			end
 			if matches[2] == 'flood' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked flood ")
 				return lock_group_flood(msg, data, target)
 			end
-			if matches[2] == 'arabic' then
+
+			--[[if matches[2] == 'arabic' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked arabic ")
 				return lock_group_arabic(msg, data, target)
 			end
@@ -2131,19 +1800,8 @@ end
 			if matches[2]:lower() == 'rtl' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked rtl chars. in names")
 				return lock_group_rtl(msg, data, target)
-			end
-			if matches[2] == 'tgservice' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked Tgservice Actions")
-				return lock_group_tgservice(msg, data, target)
-			end
-			if matches[2] == 'sticker' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked sticker posting")
-				return lock_group_sticker(msg, data, target)
-			end
-			if matches[2] == 'contacts' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked contact posting")
-				return lock_group_contacts(msg, data, target)
-			end
+			end]]
+
 			if matches[2] == 'strict' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked enabled strict settings")
 				return enable_strict_rules(msg, data, target)
@@ -2152,42 +1810,32 @@ end
 
 		if matches[1] == 'unlock' and is_momod(msg) then
 			local target = msg.to.id
-			if matches[2] == 'links' then
+			if matches[2] == 'link' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked link posting")
 				return unlock_group_links(msg, data, target)
 			end
+
 			if matches[2] == 'spam' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked spam")
 				return unlock_group_spam(msg, data, target)
 			end
 			if matches[2] == 'flood' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked flood")
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked flood") 
 				return unlock_group_flood(msg, data, target)
 			end
-			if matches[2] == 'arabic' then
+			--[[if matches[2] == 'arabic' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked Arabic")
 				return unlock_group_arabic(msg, data, target)
 			end
 			if matches[2] == 'member' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked member ")
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked member ") 
 				return unlock_group_membermod(msg, data, target)
 			end
 			if matches[2]:lower() == 'rtl' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked RTL chars. in names")
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked RTL chars. in names") 
 				return unlock_group_rtl(msg, data, target)
-			end
-				if matches[2] == 'tgservice' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked tgservice actions")
-				return unlock_group_tgservice(msg, data, target)
-			end
-			if matches[2] == 'sticker' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked sticker posting")
-				return unlock_group_sticker(msg, data, target)
-			end
-			if matches[2] == 'contacts' then
-				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked contact posting")
-				return unlock_group_contacts(msg, data, target)
-			end
+			end]]
+
 			if matches[2] == 'strict' then
 				savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked disabled strict settings")
 				return disable_strict_rules(msg, data, target)
@@ -2198,20 +1846,14 @@ end
 			if not is_momod(msg) then
 				return
 			end
-			if tonumber(matches[2]) < 1 or tonumber(matches[2]) > 200 then
-			local hash = 'group:'..msg.to.id
-            local group_lang = redis:hget(hash,'lang')
-            if group_lang then
-			    return "شما میتوانید حساسیت را از[1-200]تنظیم کنید"
-				else
-				return "Wrong number,range is [1-200]"
-				end
+			if tonumber(matches[2]) < 5 or tonumber(matches[2]) > 20 then
+				return "عدد اشتباه، باید بین [5 تا 20] باشد"
 			end
 			local flood_max = matches[2]
 			data[tostring(msg.to.id)]['settings']['flood_msg_max'] = flood_max
 			save_data(_config.moderation.data, data)
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] set flood to ["..matches[2].."]")
-			return 'Flood has been set to: '..matches[2]
+			return 'تعداد اسپم روی '..matches[2]..' ست شد'
 		end
 		if matches[1] == 'public' and is_momod(msg) then
 			local target = msg.to.id
@@ -2225,16 +1867,56 @@ end
 			end
 		end
 
-		if matches[1] == 'mute' and is_owner(msg) then
+
+		if matches[1] == 'mute' and is_momod(msg) then
 			local chat_id = msg.to.id
+			local target = msg.to.id
 			if matches[2] == 'audio' then
 			local msg_type = 'Audio'
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return msg_type.." has been muted"
+					data[tostring(msg.to.id)]['settings']['mute_audio'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فایل های صوتی فعال شد"
 				else
-					return "SuperGroup mute "..msg_type.." is already on"
+					return "فیلتر فایل های صوتی از قبل فعال بوده است"
+				end
+			end
+			if matches[2] == 'forward' then
+			local msg_type = 'Forward'
+				if not is_muted(chat_id, msg_type..': yes') then
+					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
+					mute(chat_id, msg_type)
+					data[tostring(msg.to.id)]['settings']['mute_forward'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فروارد فعال شد"
+				else
+					return "فیلتر فروارد از قبل فعال بوده است"
+				end
+			end
+			if matches[2] == 'sticker' or matches[2] == 'stickers' then
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] mute sticker posting")
+				return lock_group_sticker(msg, data, target)
+			end
+			if matches[2] == 'contact' then
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] mute contact posting")
+				return lock_group_contacts(msg, data, target)
+			end
+		    if matches[2] == 'porn' then
+			savelog(msg.to.id, name_log.." ["..msg.from.id.."] mute porn ")
+			return lock_group_porn(msg, data, target)
+		    end
+			if matches[2] == 'service' then
+			local msg_type = 'service'
+				if not is_muted(chat_id, msg_type..': yes') then
+					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type) 
+					mute(chat_id, msg_type)
+					data[tostring(msg.to.id)]['settings']['mute_service'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر پیام ورود و خروج افراد فعال شد"
+				else
+					return "فیلتر پیام ورود و خروج افراد از قبل فعال بوده است"
 				end
 			end
 			if matches[2] == 'photo' then
@@ -2242,9 +1924,11 @@ end
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return msg_type.." has been muted"
+					data[tostring(msg.to.id)]['settings']['mute_photo'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر عکس فعال شد"
 				else
-					return "SuperGroup mute "..msg_type.." is already on"
+					return "فیلتر عکس از قبل فعال بوده است"
 				end
 			end
 			if matches[2] == 'video' then
@@ -2252,29 +1936,35 @@ end
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return msg_type.." has been muted"
+					data[tostring(msg.to.id)]['settings']['mute_video'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فیلم فعال شد"
 				else
-					return "SuperGroup mute "..msg_type.." is already on"
+					return "فیلتر فیلم از قبل فعال بوده است"
 				end
 			end
-			if matches[2] == 'gifs' then
+			if matches[2] == 'gif' then
 			local msg_type = 'Gifs'
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return msg_type.." have been muted"
+					data[tostring(msg.to.id)]['settings']['mute_gif'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر Gif فعال شد"
 				else
-					return "SuperGroup mute "..msg_type.." is already on"
+					return "فیلتر Gif از قبل فعال بوده است"
 				end
 			end
-			if matches[2] == 'documents' then
+			if matches[2] == 'doc' then
 			local msg_type = 'Documents'
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return msg_type.." have been muted"
+					data[tostring(msg.to.id)]['settings']['mute_doc'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فایل ها فعال شد"
 				else
-					return "SuperGroup mute "..msg_type.." is already on"
+					return "فیلتر فایل ها از قبل فعال بوده است"
 				end
 			end
 			if matches[2] == 'text' then
@@ -2282,9 +1972,11 @@ end
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return msg_type.." has been muted"
+					data[tostring(msg.to.id)]['settings']['mute_text'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر ارسال متن فعال شد"
 				else
-					return "Mute "..msg_type.." is already on"
+					return "فیلتر ارسال متن از قبل فعال بوده است"
 				end
 			end
 			if matches[2] == 'all' then
@@ -2292,22 +1984,80 @@ end
 				if not is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: mute "..msg_type)
 					mute(chat_id, msg_type)
-					return "Mute "..msg_type.."  has been enabled"
+					data[tostring(msg.to.id)]['settings']['mute_all'] = 'yes'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر تمامی پیام ها فعال شد"
 				else
-					return "Mute "..msg_type.." is already on"
+					return "فیلتر تمامی پیام ها از قبل فعال بوده است"
 				end
 			end
 		end
 		if matches[1] == 'unmute' and is_momod(msg) then
 			local chat_id = msg.to.id
+			local target = msg.to.id
 			if matches[2] == 'audio' then
 			local msg_type = 'Audio'
 				if is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
 					unmute(chat_id, msg_type)
-					return msg_type.." has been unmuted"
+					data[tostring(msg.to.id)]['settings']['mute_audio'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فایل های صوتی غیرفعال شد"
 				else
-					return "Mute "..msg_type.." is already off"
+					return "فیلتر فایل های صوتی از قبل غیرفعال بوده است"
+				end
+			end
+			if matches[2] == 'forward' then
+			local msg_type = 'Forward'
+				if is_muted(chat_id, msg_type..': yes') then
+					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
+					unmute(chat_id, msg_type)
+					data[tostring(msg.to.id)]['settings']['mute_forward'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فروارد غیرفعال شد"
+				else
+					return "فیلتر فروارد از قبل غیرفعال بوده است"
+				end
+			end
+
+if matches[1]:lower() == 'welcome' then
+      local target = msg.to.id
+      if matches[2]:lower() == 'enable' then
+	  local hash = 'usecommands:'..msg.from.id..':'..msg.to.id
+    redis:incr(hash)
+        savelog(msg.to.id, name_log.." ["..msg.from.id.."] locked welcome ")
+        return lock_group_welcome(msg, data, target)
+      end
+	if matches[2]:lower() == 'disable' then
+	  local hash = 'usecommands:'..msg.from.id..':'..msg.to.id
+    redis:incr(hash)
+        savelog(msg.to.id, name_log.." ["..msg.from.id.."] unlocked welcome ")
+        return unlock_group_welcome(msg, data, target)
+      end
+	end
+
+			if matches[2] == 'sticker' or  matches[2] == 'stickers' then
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unmute sticker posting")
+				return unlock_group_sticker(msg, data, target)
+			end
+			if matches[2] == 'contact' then
+				savelog(msg.to.id, name_log.." ["..msg.from.id.."] unmute contact posting") 
+				return unlock_group_contacts(msg, data, target)
+			end
+		    if matches[2] == 'porn' then
+			savelog(msg.to.id, name_log.." ["..msg.from.id.."] unmute porn ") 
+			return unlock_group_porn(msg, data, target)
+		    end
+			if matches[2] == 'service' then
+			local msg_type = 'service'
+				if is_muted(chat_id, msg_type..': yes') then
+					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
+					unmute(chat_id, msg_type)
+					data[tostring(msg.to.id)]['settings']['mute_service'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر پیام ورود و خروج افراد غیرفعال شد"
+				else
+					return "فیلتر پیام ورود و خروج افراد از قبل غیرفعال بوده است"
 				end
 			end
 			if matches[2] == 'photo' then
@@ -2315,9 +2065,11 @@ end
 				if is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
 					unmute(chat_id, msg_type)
-					return msg_type.." has been unmuted"
+					data[tostring(msg.to.id)]['settings']['mute_photo'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر عکس غیرفعال شد"
 				else
-					return "Mute "..msg_type.." is already off"
+					return "فیلتر عکس از قبل غیرفعال بوده است"
 				end
 			end
 			if matches[2] == 'video' then
@@ -2325,29 +2077,35 @@ end
 				if is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
 					unmute(chat_id, msg_type)
-					return msg_type.." has been unmuted"
+					data[tostring(msg.to.id)]['settings']['mute_video'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فیلم غیرفعال شد"
 				else
-					return "Mute "..msg_type.." is already off"
+					return "فیلتر فیلم از قبل غیرفعال بوده است"
 				end
 			end
-			if matches[2] == 'gifs' then
-			local msg_type = 'Gifs'
+			if matches[2] == 'gif' then 
+			local msg_type = 'Gifs' 
 				if is_muted(chat_id, msg_type..': yes') then
-					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
-					unmute(chat_id, msg_type)
-					return msg_type.." have been unmuted"
+					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type) 
+					unmute(chat_id, msg_type) 
+					data[tostring(msg.to.id)]['settings']['mute_gif'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر Gif غیرفعال شد"
 				else
-					return "Mute "..msg_type.." is already off"
+					return "فیلتر Gif از قبل غیرفعال بوده است"
 				end
 			end
-			if matches[2] == 'documents' then
-			local msg_type = 'Documents'
+			if matches[2] == 'doc' then 
+			local msg_type = 'Documents' 
 				if is_muted(chat_id, msg_type..': yes') then
-					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
+					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type) 
 					unmute(chat_id, msg_type)
-					return msg_type.." have been unmuted"
+					data[tostring(msg.to.id)]['settings']['mute_doc'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر فایل ها غیرفعال شد"
 				else
-					return "Mute "..msg_type.." is already off"
+					return "فیلتر فایل ها از قبل غیرفعال بوده است"
 				end
 			end
 			if matches[2] == 'text' then
@@ -2355,9 +2113,11 @@ end
 				if is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute message")
 					unmute(chat_id, msg_type)
-					return msg_type.." has been unmuted"
+					data[tostring(msg.to.id)]['settings']['mute_text'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر ارسال متن غیرفعال شد"
 				else
-					return "Mute text is already off"
+					return "فیلتر ارسال متن از قبل غیرفعال بوده است"
 				end
 			end
 			if matches[2] == 'all' then
@@ -2365,15 +2125,17 @@ end
 				if is_muted(chat_id, msg_type..': yes') then
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] set SuperGroup to: unmute "..msg_type)
 					unmute(chat_id, msg_type)
-					return "Mute "..msg_type.." has been disabled"
+					data[tostring(msg.to.id)]['settings']['mute_all'] = 'no'
+                    save_data(_config.moderation.data, data)
+					return "فیلتر تمامی پیام ها غیرفعال شد"
 				else
-					return "Mute "..msg_type.." is already disabled"
+					return "فیلتر تمامی پیام ها از قبل غیرفعال بوده است"
 				end
 			end
 		end
 
 
-		if matches[1] == "muteuser" and is_momod(msg) then
+		if matches[1]:lower() == "silent" and is_momod(msg) then
 			local chat_id = msg.to.id
 			local hash = "mute_user"..chat_id
 			local user_id = ""
@@ -2381,18 +2143,18 @@ end
 				local receiver = get_receiver(msg)
 				local get_cmd = "mute_user"
 				muteuser = get_message(msg.reply_id, get_message_callback, {receiver = receiver, get_cmd = get_cmd, msg = msg})
-			elseif matches[1] == "muteuser" and matches[2] and string.match(matches[2], '^%d+$') then
+			elseif matches[1] == "silent" and string.match(matches[2], '^%d+$') then
 				local user_id = matches[2]
 				if is_muted_user(chat_id, user_id) then
 					unmute_user(chat_id, user_id)
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] removed ["..user_id.."] from the muted users list")
-					return "["..user_id.."] removed from the muted users list"
-				elseif is_owner(msg) then
+					return "["..user_id.."] از لیست Mute کاربران حذف شد"
+				elseif is_momod(msg) then
 					mute_user(chat_id, user_id)
 					savelog(msg.to.id, name_log.." ["..msg.from.id.."] added ["..user_id.."] to the muted users list")
-					return "["..user_id.."] added to the muted user list"
+					return "["..user_id.."] به لیست Mute کاربران اضافه شد"
 				end
-			elseif matches[1] == "muteuser" and matches[2] and not string.match(matches[2], '^%d+$') then
+			elseif matches[1] == "silent" and not string.match(matches[2], '^%d+$') then
 				local receiver = get_receiver(msg)
 				local get_cmd = "mute_user"
 				local username = matches[2]
@@ -2400,20 +2162,34 @@ end
 				resolve_username(username, callbackres, {receiver = receiver, get_cmd = get_cmd, msg=msg})
 			end
 		end
-
-		if matches[1] == "muteslist" and is_momod(msg) then
-			local chat_id = msg.to.id
-			if not has_mutes(chat_id) then
-				set_mutes(chat_id)
-				return mutes_list(chat_id)
+		if matches[1] == "mutelist" and is_momod(msg) then
+			local target = msg.to.id
+			if not has_mutes(target) then
+				set_mutes(target)
+				return show_supergroup_mutes(msg, target)
 			end
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested SuperGroup muteslist")
-			return mutes_list(chat_id)
+			return show_supergroup_mutes(msg, target)
 		end
-		if matches[1] == "mutelist" and is_momod(msg) then
+--Arian
+		if matches[1] == "silentlist" and is_momod(msg) then
 			local chat_id = msg.to.id
 			savelog(msg.to.id, name_log.." ["..msg.from.id.."] requested SuperGroup mutelist")
-			return muted_user_list(chat_id)
+			local hash =  'mute_user:'..msg.to.id
+	        local list = redis:smembers(hash)
+         	local text = "لیست کاربران Mute شده ["..msg.to.id.."]:\n\n"
+         	for k,v in pairsByKeys(list) do
+  	    	local user_info = redis:hgetall('user:'..v)
+	    	if user_info and user_info.print_name then
+			local print_name = string.gsub(user_info.print_name, "_", " ")
+			local print_name = string.gsub(print_name, "‮", "")
+			text = text..k.." - "..print_name.." ["..v.."]\n"
+		else
+		text = text..k.." - [ "..v.." ]\n"
+	        end
+        end
+        return text
+
 		end
 
 		if matches[1] == 'settings' and is_momod(msg) then
@@ -2427,20 +2203,15 @@ end
 			return get_rules(msg, data)
 		end
 
-      if matches[1] == 'help' and not is_owner(msg) then
-	  local hash = 'group:'..msg.to.id
-      local group_lang = redis:hget(hash,'lang')
-      if group_lang then
-	  return ""..string.gsub(msg.from.print_name, "_", " ").."شما میتوانید با فرستادن دستور [/superhelp]خصوصی بات راهنمای سوپرگروه ربات دریافت کنید\nباتشکرتیم پارت\n@PartTeam"
-	  else
-      return ""..string.gsub(msg.from.print_name, "_", " ").."You can send command [/ superhelp] get baht instructions guide\nThanks to the Part\n@PartTeam"
-	  end
-      elseif matches[1] == 'help' and is_owner(msg) then
-      local name_log = user_print_name(msg.from)
-      savelog(msg.to.id, name_log.." ["..msg.from.id.."] Used /superhelp")
-      return super_help()
-      end
-   
+		--[[if matches[1] == 'help' and not is_owner(msg) then
+			text = "Dar Hale Sakhte shodan:|"
+			reply_msg(msg.id, text, ok_cb, false)
+		elseif matches[1] == 'help' and is_owner(msg) then
+			local name_log = user_print_name(msg.from)
+			savelog(msg.to.id, name_log.." ["..msg.from.id.."] Used /superhelp") 
+			return super_help()
+		end]]
+
 		if matches[1] == 'peer_id' and is_admin1(msg)then
 			text = msg.to.peer_id
 			reply_msg(msg.id, text, ok_cb, false)
@@ -2480,7 +2251,7 @@ end
 				if is_support(msg.action.user.id) and not is_owner2(msg.action.user.id) then
 					local receiver = get_receiver(msg)
 					local user = "user#id"..msg.action.user.id
-					savelog(msg.to.id, name_log.." Support member ["..msg.action.user.id.."] added to the SuperGroup by [ "..msg.from.id.." ]")
+					savelog(msg.to.id, name_log.." Support member ["..msg.action.user.id.."] added to the SuperGroup by [ "..msg.from.id.." ]") 
 					channel_set_mod(receiver, user, ok_cb, false)
 				end
 			end
@@ -2614,4 +2385,3 @@ return {
   run = run,
   pre_process = pre_process
 }
-
